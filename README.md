@@ -120,3 +120,5 @@ TransFuser-lite is a simplified reimplementation of [TransFuser](https://arxiv.o
 ## License
 
 MIT, see [LICENSE](LICENSE). `vendor/carla_agents/` is CARLA's own code, also under the MIT license.
+
+`bench/bench2drive.patch` modifies Bench2Drive and is not covered by this project's license. Bench2Drive has its own license terms, so check them before reusing the patch.
