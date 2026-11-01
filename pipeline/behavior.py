@@ -11,7 +11,6 @@ from utils.commands import (
     COMMAND_GO_STRAIGHT,
     COMMAND_TURN_LEFT,
     COMMAND_TURN_RIGHT,
-    road_option_to_command,
 )
 from utils.lights import LIGHT_GREEN, LIGHT_OFF, normalize_light_state
 
@@ -163,7 +162,3 @@ def crossing_threat(
                 if abs(y) >= 1.2:
                     return True
     return False
-
-
-def command_from_route_option(option) -> str:
-    return road_option_to_command(option)

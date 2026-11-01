@@ -38,7 +38,7 @@ from utils.balance import (
     write_balanced_controls,
     write_command_distribution,
 )
-from utils.commands import COMMAND_FOLLOW_LANE, command_to_onehot
+from utils.commands import command_to_onehot
 from utils.radar import (
     encode_radar,
     format_radar_m,

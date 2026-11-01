@@ -35,22 +35,6 @@ def geo_to_enu(
     return east, north, up
 
 
-def enu_to_geo(
-    east_m: float,
-    north_m: float,
-    up_m: float,
-    origin: GeoOrigin,
-) -> tuple[float, float, float]:
-    """Local ENU meters → geodetic degrees / meters."""
-    lat0 = math.radians(origin.lat_deg)
-    lat = origin.lat_deg + north_m / _METERS_PER_DEG_LAT
-    lon = origin.lon_deg + east_m / (
-        _METERS_PER_DEG_LAT * max(math.cos(lat0), 1e-6)
-    )
-    alt = origin.alt_m + up_m
-    return lat, lon, alt
-
-
 def enu_to_xy(
     east_m: float,
     north_m: float,

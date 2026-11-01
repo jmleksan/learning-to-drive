@@ -117,18 +117,16 @@ the old EMA filter for checkpoints trained with it.
 
 1. **Smoke** — `python -m rl.train --algo ppo --timesteps 2000` steps without
    crashing (CARLA up). Same for `--algo sac`.
-2. **Checkpoints** — `models/rl_ppo/` and `models/rl_sac/` hold `best_model.zip`.
+2. **Checkpoints** — each `--out` folder holds `best_model.zip`, such as
+   `models/rl_sac_bev_perc/`.
 3. **Scored eval** — `python -m rl.eval_drive` writes `drive_metrics.json` with
    the Stage 1 fields (`collisions/km`, invasions, route %, speed, CTE).
-4. **Milestone (later)** — a reward-only agent matches or beats
-   `data/drive_log_20261009_164441` on a fixed Town01 route.
+4. **Milestone** — a reward-only agent matches the IL baseline on a fixed Town01
+   route. See "IL vs RL on the fixed route" below.
 
 ## Commands
 
 ```bash
-# deps (in .venv)
-pip install gymnasium stable-baselines3 tensorboard
-
 # smoke: prove env steps (watch in UE4; add --no-render for fast ticks)
 python -m rl.train --algo ppo --timesteps 2000 --map Town01
 python -m rl.train --algo sac --timesteps 2000 --map Town01
@@ -225,8 +223,9 @@ perceived fine-tune, where six checkpoints in a row are clean.
 ## Status
 
 Starter: Gymnasium lane-keep env, shared reward, PPO and SAC CLIs, scored eval,
-`--camera` for the IL rematch, and `--bev` (map-truth BEV) with optional
-`--speed-control`. Perceived BEV and traffic come later.
+`--camera` for the IL rematch, `--bev` (map-truth or perceived SegNet road) with
+optional `--speed-control`, and traffic through `--lights`, `--npc-vehicles`, and
+`--walkers`.
 
 ## Package map
 

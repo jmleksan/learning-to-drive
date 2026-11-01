@@ -78,7 +78,7 @@ last_done=-1
 tries=0
 while :; do
   server_up || start_server || exit 1
-  # Unset rather than False: --resume is type=bool, so any string means True.
+  # --resume is type=bool, so any string, even "False", means True.
   "$BENCH/.venv/bin/python" leaderboard/leaderboard/leaderboard_evaluator.py \
     --host="$HOST" --port=$PORT --traffic-manager-port=8000 \
     --routes="$ROUTES" --repetitions=1 --track=SENSORS \

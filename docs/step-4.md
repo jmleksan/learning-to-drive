@@ -109,7 +109,7 @@ Match conditions as closely as practical:
 - Learned baseline: `data/drive_log_20261009_164441` / `models/radar_dagger.pt`
 - Classical: `pipeline.drive` with chosen `--controller`
 
-Fill the table in `models/pipeline_preview/compare.md` after a classical run.
+The table is in `models/pipeline_preview/compare.md`.
 
 ## Status
 

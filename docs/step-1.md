@@ -57,3 +57,15 @@ The 600 s timer ended the run with about 260 m of route left. On the last left t
 ## What is still open
 
 Brightness and weather augmentation were never added. This pass is one Town01 route, not a repeated loop of the town. Radar stays off the steering trunk until there are demonstrations of steering around a car, which the expert does not do today.
+
+## Other tools in `expert/`
+
+| Script | Role |
+|---|---|
+| `collect.py` | Collect a lane-keeping dataset on Town01, then train |
+| `fit.py` | Record and train, with an optional matched drive |
+| `waypoint_drive.py` | Drive planned routes with a pure-pursuit controller |
+| `scout_spawns.py` | Find spawn points with high turn coverage |
+| `plan_routes.py` | Preview balanced routes without recording |
+| `relabel_commands.py` | Rewrite command labels to match the expert's steering |
+| `audit_data.py` | Audit recorded runs for lane-keeping data quality |

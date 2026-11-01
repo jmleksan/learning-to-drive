@@ -924,29 +924,6 @@ def render_strip(
     }
 
 
-def save_comparison(
-    run_dir: Path,
-    frame: int,
-    out_path: Path,
-    *,
-    forward_m: float = FORWARD_M,
-    lateral_m: float = LATERAL_M,
-    cell_m: float = CELL_M,
-    mode: str = "full",
-):
-    strip, result = render_strip(
-        run_dir,
-        frame,
-        forward_m=forward_m,
-        lateral_m=lateral_m,
-        cell_m=cell_m,
-        mode=mode,
-    )
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    strip.save(out_path)
-    return result
-
-
 def write_video(
     run_dir: Path,
     out_path: Path,

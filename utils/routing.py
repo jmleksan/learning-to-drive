@@ -175,18 +175,6 @@ def apply_tm_path(
     tm.set_path(vehicle, locations)
 
 
-def distance_to_route_m(
-    vehicle_loc: carla.Location,
-    route: Sequence[tuple[carla.Waypoint, RoadOption]],
-    *,
-    route_index: int = 0,
-) -> float:
-    if not route:
-        return float("inf")
-    idx = nearest_route_index(vehicle_loc, route, start_hint=route_index)
-    return vehicle_loc.distance(route[idx][0].transform.location)
-
-
 def remaining_route_distance_m(
     vehicle_loc: carla.Location,
     route: Sequence[tuple[carla.Waypoint, RoadOption]],
@@ -229,11 +217,6 @@ def nearest_route_index(
             best_d = d
             best_i = i
     return best_i
-
-
-def _yaw_to_forward(yaw_deg: float) -> tuple[float, float]:
-    yaw = math.radians(yaw_deg)
-    return math.cos(yaw), math.sin(yaw)
 
 
 def _local_xy(

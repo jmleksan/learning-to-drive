@@ -71,8 +71,6 @@ def dump_map(
     if offline:
         return dump_map_offline(out=out)
 
-    import carla
-
     from utils.connection import connect_client
     from utils.routing import build_planner, plan_route
     from utils.run_meta import ensure_map

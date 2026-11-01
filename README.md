@@ -68,6 +68,8 @@ The stages are not all scored the same way, so compare results within a stage ra
 
 Datasets, drive logs, and checkpoints are about 35 GB and are not in git. `data/` and `models/` must be regenerated with the commands in each stage's write-up, so results here cannot be reproduced from a fresh clone without recording and training again.
 
+A few older logs named in the Step 1, 2, 4, and 5 write-ups are no longer on disk, so those numbers are preserved only in the write-ups.
+
 ## Setup
 
 Tested with CARLA running on Windows and the Python code in WSL2, on a 6 GB RTX 3060 laptop GPU. The client finds the Windows host automatically, or you can set `CARLA_HOST`.

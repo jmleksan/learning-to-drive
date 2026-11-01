@@ -18,7 +18,7 @@ for ego, expert braking) from the fused vector.
 
 Backbones: ``resnet18`` (default, as in TransFuser) uses torchvision
 ResNet-18 for both branches, the camera one from ImageNet weights when
-``pretrained``; the lidar one always starts random (2-channel input, and
+``pretrained``; the lidar one always starts random (4-channel input, and
 ImageNet features don't transfer to a BEV histogram). The lidar branch also
 reads the goal channels drawn in transfuser/data.py. ``small`` is a
 narrower ResNet-10-ish trained from scratch.

@@ -84,7 +84,6 @@ from utils.routing import (
     plan_route,
     plan_spawn_to_spawn,
     route_forward_alignment,
-    upcoming_command,
 )
 from utils.run_meta import find_spawn_index, save_run_meta, ensure_map
 from utils.weather import WEATHER_PRESETS, apply_weather
@@ -705,7 +704,6 @@ def record_run(
                 # Deterministic FOLLOW poke so recovery actually appears in CSV.
                 nudge_cooldown = 0
                 mid_turn_nudge_cooldown = int(6.0 * fps)
-                follow_nudge_mag = 0.20  # nominal; actual draw is randomized below
                 follow_nudge_period = int(10.0 * fps)  # ~10s between FOLLOW pokes
                 stop_actors = list(world.get_actors().filter("traffic.stop"))
 
@@ -724,7 +722,7 @@ def record_run(
                     )
                 if mid_turn_nudge and not use_tm:
                     print(
-                        f"Mid-turn recovery ON: |nudge|~0.05–0.10 "
+                        "Mid-turn recovery ON: |nudge|~0.05–0.10 "
                         "during sticky TURN_* (varying; labels stay TURN_*)"
                     )
                 print("Ctrl+C to stop early.")

@@ -35,7 +35,3 @@ def light_to_onehot(state: str | None) -> list[float]:
     idx = _LIGHT_INDEX[normalize_light_state(state)]
     vec[idx] = 1.0
     return vec
-
-
-def is_stop_light(state: str | None) -> bool:
-    return normalize_light_state(state) in (LIGHT_RED, LIGHT_YELLOW)

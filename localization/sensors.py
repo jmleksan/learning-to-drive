@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import math
 import queue
-from dataclasses import dataclass
 
 import carla
 
@@ -14,26 +12,6 @@ DEFAULT_GNSS_STDDEV_DEG = 3.0e-5
 DEFAULT_GNSS_ALT_STDDEV_M = 1.0
 DEFAULT_IMU_ACCEL_STDDEV = 0.05
 DEFAULT_IMU_GYRO_STDDEV = 0.01
-
-
-@dataclass
-class GnssSample:
-    frame: int
-    lat_deg: float
-    lon_deg: float
-    alt_m: float
-
-
-@dataclass
-class ImuSample:
-    frame: int
-    ax: float
-    ay: float
-    az: float
-    gx: float
-    gy: float
-    gz: float
-    compass_rad: float
 
 
 def attach_gnss(
@@ -169,17 +147,3 @@ def pop_imu(imu_queue: queue.Queue) -> carla.IMUMeasurement | None:
         except queue.Empty:
             break
     return latest
-
-
-def yaw_rate_from_imu(imu: carla.IMUMeasurement) -> float:
-    """Vehicle-frame yaw rate (rad/s). CARLA gyro.z is about vertical."""
-    return float(imu.gyroscope.z)
-
-
-def compass_yaw_rad(imu: carla.IMUMeasurement) -> float:
-    """Compass heading in radians (CARLA: 0 = north, clockwise)."""
-    return float(imu.compass)
-
-
-def deg_to_rad(deg: float) -> float:
-    return deg * math.pi / 180.0

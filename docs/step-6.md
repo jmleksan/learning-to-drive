@@ -37,7 +37,7 @@ aux:  camera branch → image semantics (7 classes)
 - **Backbone** (`--backbone`, default `resnet18`): torchvision ResNet-18 for
   both branches, as in TransFuser. The camera branch starts from ImageNet
   weights (`--no-pretrained` for random init). The lidar branch always starts
-  random: its input has 2 channels, and ImageNet features don't transfer to a
+  random: its input has 4 channels, and ImageNet features don't transfer to a
   BEV histogram. `--backbone small` is a narrower ResNet-10-ish from scratch.
   The default learning rate is 1e-4 for resnet18 (so early updates don't wreck
   the pretrained features) and 3e-4 for small.
