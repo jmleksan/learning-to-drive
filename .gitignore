@@ -1,0 +1,19 @@
+# Environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+
+# Datasets, drive logs, and checkpoints (about 35 GB, not in git)
+data/
+models/
+*.pt
+*.pth
+*.zip
+*.pkl
+*.npz
+*.mp4
+
+# Editors and OS files
+.vscode/
+.idea/
+.DS_Store

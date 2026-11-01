@@ -1,0 +1,25 @@
+# Python 3.10 env for the benchmark. The project's own .venv stays on 3.12 and CARLA 0.9.16.
+# Install torch and torchvision from the PyTorch index that matches your CUDA version.
+carla==0.9.15
+numpy==1.26.4
+opencv-python-headless<4.11
+py-trees==0.8.3
+setuptools<81
+dictor
+ephem
+matplotlib
+networkx
+pexpect
+pillow
+psutil
+pygame
+requests
+shapely
+simple-watchdog-timer
+six
+tabulate
+torch
+torchvision
+tqdm
+transforms3d
+xmlschema

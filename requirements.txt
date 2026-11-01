@@ -1,0 +1,13 @@
+carla==0.9.16
+numpy
+pillow
+torch
+torchvision
+tqdm
+imageio
+imageio-ffmpeg
+networkx
+shapely
+gymnasium
+stable-baselines3
+tensorboard
