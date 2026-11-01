@@ -116,3 +116,7 @@ bash bench/run.sh dev10 models/transfuser.pt
 ## Acknowledgments
 
 TransFuser-lite is a simplified reimplementation of [TransFuser](https://arxiv.org/abs/2205.15997) (Chitta et al.). Evaluation uses [Bench2Drive](https://github.com/Thinklab-SJTU/Bench2Drive), the [CARLA Leaderboard](https://leaderboard.carla.org/), and Scenario Runner.
+
+## License
+
+MIT, see [LICENSE](LICENSE). `vendor/carla_agents/` is CARLA's own code, also under the MIT license.
