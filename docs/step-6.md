@@ -35,7 +35,7 @@ aux:  camera branch → image semantics (7 classes)
   0.5 s. Stopping comes from bunched waypoints. Braking is proportional instead
   of all-or-nothing, and full braking needs 3 frames of "stop" in a row.
 - **Backbone** (`--backbone`, default `resnet18`): torchvision ResNet-18 for
-  both branches, as in TransFuser. The camera branch starts from ImageNet
+  both branches. The camera branch starts from ImageNet
   weights (`--no-pretrained` for random init). The lidar branch always starts
   random: its input has 4 channels, and ImageNet features don't transfer to a
   BEV histogram. `--backbone small` is a narrower ResNet-10-ish from scratch.
@@ -245,7 +245,10 @@ Two more collisions were reported for that batch, with a wall. They came after t
 drive ended, when sync mode was off and the car rolled on. They are not counted,
 and `transfuser.drive` now reads collisions from the logged frames.
 
-Bugs found by driving, none visible in open-loop numbers:
+### Bugs found by driving
+
+None of these were visible in open-loop numbers:
+
 - **Mirrored labels.** `to_ego` had y flipped. Target and waypoints were wrong in
   the same way, so validation looked perfect while the car turned away from its
   target. Fixed by negating y in the decoder's weights, no retraining.

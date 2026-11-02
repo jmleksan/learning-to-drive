@@ -1,4 +1,4 @@
-"""Scorecard: GPS-RL vs camera-RL vs Stage 1 IL (offline JSON)."""
+"""Scorecard: GPS-RL vs camera-RL vs Step 1 IL (offline JSON)."""
 from __future__ import annotations
 
 import argparse
@@ -95,7 +95,7 @@ def main() -> None:
         "--il",
         type=Path,
         default=Path("data/drive_log_20261009_164441/drive_metrics.json"),
-        help="Stage 1 IL drive_metrics.json",
+        help="Step 1 IL drive_metrics.json",
     )
     parser.add_argument(
         "--out",

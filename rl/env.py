@@ -1,7 +1,7 @@
 """Gymnasium CARLA env: stay in lane.
 
 Default observation is privileged GPS/CTE. With camera=True the policy
-sees stacked center RGB (same sensor as Stage 1 IL) plus speed and a
+sees stacked center RGB (same sensor as Step 1 IL) plus speed and a
 turn command. With bev=True it sees a bird's-eye road + route grid
 (rl/bev_obs.py) plus the same vec. The road channel is SegNet road from the
 car's own cameras by default; bev_source="map" uses map truth instead. The

@@ -1,5 +1,5 @@
 """
-Closed-loop Town01 drive with TransFuser-lite and the Stage 1 scorecard.
+Closed-loop Town01 drive with TransFuser-lite and the Step 1 scorecard.
 
 The net sees the RGB strip, the lidar BEV, speed, and two target points on
 the planned route (TARGET_M and TARGET_FAR_M ahead), also drawn into the BEV

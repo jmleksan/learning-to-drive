@@ -1,1 +1,1 @@
-"""Stage 6: TransFuser-lite (camera + lidar → waypoints)."""
+"""Step 6: TransFuser-lite (camera + lidar → waypoints)."""

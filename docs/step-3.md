@@ -59,13 +59,13 @@ python -m expert.record --semantic --lidar --cameras center,left,right --seconds
 python -m segmentation.train --data data/run_OLD data/run_NEW --epochs 20 --out models/seg.pt
 ```
 
-Reference synth gate: `models/loc_preview/metrics.json` and `trajectory.png` (green=GT, blue=EKF, red=GNSS).
+Reference synth gate: `models/loc_preview_synth/metrics.json` and `trajectory.png` (green=GT, blue=EKF, red=GNSS). EKF RMSE 0.98 m against 4.87 m for raw GNSS over 600 frames.
 
 ## What was learned
 
 - **Fusion ≠ concat.** Localization fuses by trust (process vs measurement noise). Perception fuses by geometry on a shared BEV.
 - **Late fusion** keeps SegNet / OccupancyNet as separate decisions; the grid is the meeting place.
-- **BEVFusion** mixes *features* per cell before detecting — powerful, but not required for this gate. Read it; don’t rebuild it here.
+- **BEVFusion** mixes *features* per cell before detecting — powerful, but not required for this gate.
 - **GNSS alone jitters; IMU/odom alone drifts.** Together they make a usable pose.
 - **Multi-cam** is the same ground-plane paint with different extrinsics — more road cells on the sides, same OccupancyNet objects.
 
@@ -79,4 +79,4 @@ Reference synth gate: `models/loc_preview/metrics.json` and `trajectory.png` (gr
 
 ## Verdict
 
-Step 3 localization is classical and **not trained**. Perception nets from Step 2 remain; Stage 3 teaches how modalities meet (EKF for pose, projection for multi-cam road) without replacing them with a unified mid-level fusion net.
+Step 3 localization is classical and **not trained**. Perception nets from Step 2 remain; Step 3 teaches how modalities meet (EKF for pose, projection for multi-cam road) without replacing them with a unified mid-level fusion net.

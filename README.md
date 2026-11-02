@@ -1,26 +1,42 @@
 # Learning Autonomous Driving in CARLA
 
-A staged, hands-on build of a self-driving stack in the [CARLA](https://carla.org/) simulator, from a behavior-cloned CNN to a simplified TransFuser scored on a public benchmark. Each stage has its own code, its own pass/fail gate, and a write-up of what broke and why.
+A hands-on build of a self-driving stack in the [CARLA](https://carla.org/) simulator, from a behavior-cloned CNN to a simplified TransFuser scored on a public benchmark. Seven subsystems (imitation learning, perception, localization, classical planning, reinforcement learning, sensor fusion, and benchmarking) were each built and tested on a 6 GB laptop GPU. Each step has its own code, its own pass/fail gate, and a write-up of what broke and why.
 
-**Latest result:** TransFuser-lite, trained only on Town01, scored **Driving Score 38.6** on the 10-route Bench2Drive Dev10 subset (Route Completion 66.9%, Infraction Penalty 0.70). It drove 3.3 km of Town01 traffic with one collision, then timed out on four of the ten hard scenarios.
+![Camera view, simulator truth, the model's bird's-eye scene, and where they agree](docs/images/perception_compare.png)
 
-## Stages
+*Step 2 on a recorded night drive: camera, simulator truth, the model's own bird's-eye scene, and where the two agree.*
 
-| # | Stage | What was built | Result | Write-up |
+**Latest result:** TransFuser-lite, trained only on Town01, scored **Driving Score 38.6** on the 10-route Bench2Drive Dev10 subset (Route Completion 66.9%, Infraction Penalty 0.70). It drove 3.3 km of Town01 traffic with one collision and 24 lane invasions, then timed out on four of the ten hard scenarios.
+
+## What I learned
+
+- **Good open-loop metrics can hide a broken driver.** TransFuser-lite's first version had low waypoint error but ignored its route target at junctions. Mirroring the target exposed it. A 50 m target, goal channels, and junction sampling fixed it together, and which of them mattered most is unknown ([Step 6](docs/step-6.md)).
+- **More data can't supply missing information.** In Step 1, extra camera frames of rear-end crashes didn't help, because the model had no range. Radar on the throttle and brake gave it one ([Step 1](docs/step-1.md)).
+- **Average driving says little about hard scenarios.** The same model that handled Town01 traffic scored under 14 on four Dev10 routes ([Step 7](docs/step-7.md)).
+- **One benchmark run is not a measurement.** A route went from 100 to 36 with no meaningful code change, so comparing models takes several runs ([Step 7](docs/step-7.md)).
+- **Input details decide whether a model works at all.** At the wrong lidar density, the car barely moved on the benchmark ([Step 7](docs/step-7.md)).
+
+## Steps
+
+| # | Step | What was built | Result | Write-up |
 |---|---|---|---|---|
 | 1 | Imitation learning | Branched CNN with radar and DAgger | 0 collisions, 89.8% of a 2.6 km route | [step-1](docs/step-1.md) |
-| 2 | Perception | SegNet, learned occupancy, BEV, tracking | Live scene view with no simulator truth | [step-2](docs/step-2.md) |
-| 3 | Localization | EKF on GNSS, IMU, and wheel speed | 0.69 m RMSE against 4.66 m for raw GNSS, on a synthetic noisy log | [step-3](docs/step-3.md) |
-| 4 | Classical pipeline | Prediction, behavior FSM, Frenet planning, five controllers | 0 collisions and 0 lane invasions in a 462 m, 120 s drive | [step-4](docs/step-4.md) |
-| 5 | Reinforcement learning | SAC on a perceived BEV | 95.1% of a 711 m route, 0 collisions, no traffic | [step-5](docs/step-5.md) |
-| 6 | TransFuser-lite | Camera + lidar fusion to waypoints | 1 collision in 3.3 km with 30 cars | [step-6](docs/step-6.md) |
+| 2 | Perception | SegNet, learned occupancy, BEV, tracking | Bird's-eye scene from camera and lidar on recorded drives, no simulator truth at inference | [step-2](docs/step-2.md) |
+| 3 | Localization | EKF on GNSS, IMU, and wheel speed | 0.98 m RMSE against 4.87 m for raw GNSS, on a synthetic noisy log | [step-3](docs/step-3.md) |
+| 4 | Classical pipeline | Prediction, behavior FSM, Frenet planning, five controllers | One 120 s drive with the `hybrid` controller: 462 m, 0 collisions, 0 lane invasions | [step-4](docs/step-4.md) |
+| 5 | Reinforcement learning | SAC on a perceived BEV | Finished a 711 m route with 0 collisions, with no traffic and ignoring lights | [step-5](docs/step-5.md) |
+| 6 | TransFuser-lite | Camera + lidar fusion to waypoints | 1 collision and 24 lane invasions in 3.3 km with 30 cars | [step-6](docs/step-6.md) |
 | 7 | Benchmarking | Agent running on Bench2Drive | Driving Score 38.6 on Dev10 | [step-7](docs/step-7.md) |
 
-The stages are not all scored the same way, so compare results within a stage rather than across this table.
+The steps are not all scored the same way, so compare results within a step rather than across this table.
 
 ## Benchmark results
 
 `models/transfuser.pt` on Bench2Drive Dev10, using CARLA 0.9.15. Raw results are in [`results/`](results/dev10_gpsfix/results.json).
+
+![Driving Score per route across two Dev10 runs](docs/images/dev10_runs.png)
+
+Run 2 in detail:
 
 | Scenario | Town | Driving Score | Outcome |
 |---|---|---:|---|
@@ -40,14 +56,7 @@ The stages are not all scored the same way, so compare results within a stage ra
 - Dev10 is a subset, so 38.6 is not comparable to published 220-route Bench2Drive scores or to the official CARLA Leaderboard. The full 220 routes were not run.
 - Scores vary between runs. An earlier run of the same model scored 41.2 with a GPS bug on three towns, and fixing the bug did not measurably change the score: routes the bug never touched moved more than the routes it did. One lane-change route went from 100 to 36 with no meaningful code change.
 - The model was trained on Low quality images but tested on Epic, because Low quality crashes CARLA 0.9.15 on this setup. The cost of that mismatch was not measured.
-- The car drives slowly, with 124 minimum-speed infractions. They did not lower the score here.
-
-## What the project showed
-
-- **Good open-loop metrics can hide a broken driver.** TransFuser-lite's first version had low waypoint error but ignored its route target at junctions. A test that mirrored the target exposed it, and drawing the targets into the lidar view fixed it ([Step 6](docs/step-6.md)).
-- **A little of the right data beats a lot of the same data.** In Step 1, 120 s of DAgger fixed failures that 600 s of expert driving had not ([Step 5](docs/step-5.md)).
-- **Average driving says little about hard scenarios.** The same model that handled Town01 traffic scored under 14 on four Dev10 routes ([Step 7](docs/step-7.md)).
-- **Input details decide whether a model works at all.** At the wrong lidar density, the car never moved on the benchmark ([Step 7](docs/step-7.md)).
+- The car drives slowly, with 127 minimum-speed infractions. They did not lower the score here.
 
 ## Repository layout
 
@@ -59,7 +68,7 @@ The stages are not all scored the same way, so compare results within a stage ra
 | `pipeline/` | Step 4: classical planning and control |
 | `rl/` | Step 5: Gymnasium environment, PPO and SAC training |
 | `transfuser/` | Step 6: model, training, evaluation, closed-loop drive |
-| `bench/` | Step 7: Bench2Drive agent, runner, score table, patch |
+| `bench/` | Step 7: Bench2Drive agent, runner, score table, chart, patch |
 | `utils/` | Shared CARLA helpers: connection, routing, sensors, scoring |
 | `vendor/carla_agents/` | CARLA's MIT-licensed `agents` module, version 0.9.16 |
 | `scripts/` | Connection check, map picker, vehicle spawn, GPU reset |
@@ -82,9 +91,9 @@ python3.12 -m venv .venv
 .venv/bin/python -m scripts.connect
 ```
 
-## Running each stage
+## Running each step
 
-Checkpoints are not in git, so a stage that needs another stage's model only works after you train that model. Stages can otherwise run in any order. Full commands and options are in each write-up.
+Checkpoints are not in git, so a step that needs another step's model only works after you train that model. Steps can otherwise run in any order. Full commands and options are in each write-up.
 
 | # | Needs CARLA | Needs first | Produces | Commands |
 |---|---|---|---|---|
@@ -129,6 +138,7 @@ bash bench/run.sh dev10 models/transfuser.pt
 - Training data comes from Town01 only.
 - The model has no training on the benchmark's scenarios, and NoCrash was not run.
 - The exact cause of the Low quality crash on CARLA 0.9.15 was not identified.
+- Some inputs use simulator truth. Step 1 reads the true traffic light state, and Step 6 places its route targets with the true pose. The Step 7 agent uses GPS and compass instead.
 - Dev10 was run twice, so its variation between runs is only roughly known.
 
 ## Acknowledgments

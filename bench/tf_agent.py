@@ -99,6 +99,7 @@ class TransfuserAgent(autonomous_agent.AutonomousAgent):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model, _ = load_checkpoint(path_to_conf_file.split("+")[0], self.device)
         self.controller = WaypointController()
+        # _plan_gps_HACK is the Leaderboard's own name for the full, undownsampled GPS route.
         self.lon_scale = math.cos(math.radians(self._plan_gps_HACK[0][0]["lat"]))
         self.targets = RouteTargets(
             np.array([gps_to_xy(p["lat"], p["lon"], self.lon_scale) for p, _ in self._plan_gps_HACK])
@@ -151,7 +152,7 @@ class TransfuserAgent(autonomous_agent.AutonomousAgent):
         return turned
 
     def _full_sweep(self, raw: np.ndarray, speed: float, turned: float) -> np.ndarray:
-        """This half spin + the last one, in today's ego frame, at training density."""
+        """This half spin + the last one, in the current ego frame, at training density."""
         points = raw[:, :3].astype(np.float32).copy()
         points[:, 2] += LIDAR_Z  # sensor frame → the vehicle frame the net was trained on
         sweep = points
@@ -195,32 +196,36 @@ class TransfuserAgent(autonomous_agent.AutonomousAgent):
             torch.from_numpy(target)[None].to(self.device),
         )
         waypoints = pred["waypoints"][0].cpu().numpy()
-        aff = torch.sigmoid(pred["affordance"][0]).cpu().numpy()
         self.step += 1
         steer, throttle, brake, dbg = self.controller.step(waypoints, speed)
 
         if self.debug_csv:
-            t = self.hero_actor.get_transform()
-            f, r = t.get_forward_vector(), t.get_right_vector()
-            hero = np.array([t.location.x, t.location.y])
-            if self.debug_origin is None:
-                self.debug_origin = self.pos - hero
-            pos_err = self.pos - self.debug_origin - hero
-            near_rel = near - self.debug_origin - hero
-            true_near = [near_rel[0] * f.x + near_rel[1] * f.y, near_rel[0] * r.x + near_rel[1] * r.y]
-            self.debug_csv.write(
-                f"{timestamp:.2f},{pos_err[0]:.3f},{pos_err[1]:.3f},"
-                f"{target[0]:.3f},{target[1]:.3f},{true_near[0]:.3f},{true_near[1]:.3f},"
-                f"{speed:.2f},{steer:.3f},{throttle:.3f},{brake:.3f},{len(points)},"
-                f"{dbg['desired_mps']:.3f},{aff[0]:.3f},{aff[1]:.3f}\n"
-            )
-            self.debug_csv.flush()
-            if self.step % DEBUG_EVERY_STEPS == 0:
-                np.savez_compressed(
-                    self.debug_csv.name.replace(".csv", f"_{self.step:05d}.npz"),
-                    rgb=np.concatenate(rgb, axis=1), points=points, waypoints=waypoints, target=target,
-                )
+            self._log_debug(timestamp, speed, steer, throttle, brake, dbg, pred, near, target, points, rgb, waypoints)
         return carla.VehicleControl(steer=steer, throttle=throttle, brake=brake)
+
+    def _log_debug(self, timestamp, speed, steer, throttle, brake, dbg, pred, near, target, points, rgb, waypoints) -> None:
+        """Compare the filtered pose with simulator truth. Debug only: the car never sees this."""
+        aff = torch.sigmoid(pred["affordance"][0]).cpu().numpy()
+        t = self.hero_actor.get_transform()
+        f, r = t.get_forward_vector(), t.get_right_vector()
+        hero = np.array([t.location.x, t.location.y])
+        if self.debug_origin is None:
+            self.debug_origin = self.pos - hero
+        pos_err = self.pos - self.debug_origin - hero
+        near_rel = near - self.debug_origin - hero
+        true_near = [near_rel[0] * f.x + near_rel[1] * f.y, near_rel[0] * r.x + near_rel[1] * r.y]
+        self.debug_csv.write(
+            f"{timestamp:.2f},{pos_err[0]:.3f},{pos_err[1]:.3f},"
+            f"{target[0]:.3f},{target[1]:.3f},{true_near[0]:.3f},{true_near[1]:.3f},"
+            f"{speed:.2f},{steer:.3f},{throttle:.3f},{brake:.3f},{len(points)},"
+            f"{dbg['desired_mps']:.3f},{aff[0]:.3f},{aff[1]:.3f}\n"
+        )
+        self.debug_csv.flush()
+        if self.step % DEBUG_EVERY_STEPS == 0:
+            np.savez_compressed(
+                self.debug_csv.name.replace(".csv", f"_{self.step:05d}.npz"),
+                rgb=np.concatenate(rgb, axis=1), points=points, waypoints=waypoints, target=target,
+            )
 
     def destroy(self) -> None:
         if self.debug_csv:

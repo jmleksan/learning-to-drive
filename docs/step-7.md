@@ -1,6 +1,6 @@
 # Step 7 — Benchmarking with Bench2Drive
 
-Step 7 replaces our own drive scorecard with a standard benchmark. The Stage 6
+Step 7 replaces our own drive scorecard with a standard benchmark. The Step 6
 model runs unchanged on Bench2Drive, which uses Leaderboard 2.0 scoring on short
 routes that each contain one hard scenario.
 
@@ -115,6 +115,8 @@ latitude. That needs no map access and leaves the other towns unchanged.
 |---|---:|---:|---:|---:|
 | Before fix | 41.2 | 65.0 | 0.67 | 20% |
 | After fix | 38.6 | 66.9 | 0.70 | 10% |
+
+![Driving Score per route across two Dev10 runs](images/dev10_runs.png)
 
 **The fix had no measurable effect on the score.** The five affected routes rose
 from 24.3 to 31.0 on average, but the five unaffected routes fell from 58.2 to

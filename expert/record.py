@@ -199,7 +199,7 @@ def _clear_queue(q: queue.Queue) -> None:
 
 
 def _drain_queue(q: queue.Queue, *, timeout: float = 2.0) -> carla.Image:
-    """Same pattern as the original working recorder."""
+    """Wait for a frame, then drop any backlog so the newest one wins."""
     image = q.get(timeout=timeout)
     while True:
         try:
@@ -303,9 +303,7 @@ def record_run(
 ) -> Path:
     client = connect_client(timeout=30.0)
     if map_name is not None:
-        world = ensure_map(client, map_name, settle_seconds=map_settle_seconds)
-    else:
-        world = client.get_world()
+        ensure_map(client, map_name, settle_seconds=map_settle_seconds)
     # Always re-fetch after map ops.
     world = client.get_world()
     client.set_timeout(30.0)

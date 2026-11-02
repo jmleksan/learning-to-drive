@@ -4,7 +4,7 @@ import random
 import carla
 
 # Lateral offset still drives recovery labels. Left/right also yaw outward so
-# Stage 3 multi-cam BEV gets real side coverage (not just parallel stereo).
+# Step 3 multi-cam BEV gets real side coverage (not just parallel stereo).
 # Wide cams stay yaw=0 for stereo depth experiments.
 
 CAMERA_SPECS = (

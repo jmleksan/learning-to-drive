@@ -1,4 +1,4 @@
-"""Compare classical vs learned Stage 1 drive metrics (offline JSON)."""
+"""Compare classical vs learned Step 1 drive metrics (offline JSON)."""
 from __future__ import annotations
 
 import argparse
@@ -58,7 +58,7 @@ def compare(
     table["learned"].setdefault("agent", l.get("agent", "learned"))
 
     text_lines = [
-        "# Classical vs learned (Stage 4 milestone)",
+        "# Classical vs learned (Step 4 milestone)",
         "",
         "| Metric | Classical | Learned | Δ (C−L) |",
         "|--------|-----------|---------|---------|",
@@ -105,7 +105,7 @@ def main() -> None:
         "--learned",
         type=Path,
         default=Path("data/drive_log_20261009_164441/drive_metrics.json"),
-        help="Path to learned Stage 1 drive_metrics.json",
+        help="Path to learned Step 1 drive_metrics.json",
     )
     parser.add_argument(
         "--out",

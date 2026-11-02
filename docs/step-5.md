@@ -5,7 +5,7 @@ lane centering, crash penalty) and PPO / SAC update a policy from that score.
 
 DAgger is already done in Step 1 (`expert/dagger.py`, `models/radar_dagger.pt`).
 This step is **pure reward**. Privileged GPS/CTE is the cheap learner; `--camera`
-is the fair rematch vs Stage 1 IL (`models/radar_dagger.pt`): same Town01 route,
+is the fair rematch vs Step 1 IL (`models/radar_dagger.pt`): same Town01 route,
 same reward/scorecard, policy sees center RGB instead of map CTE. No traffic.
 
 ## Why IL plateaus
@@ -43,7 +43,7 @@ sideways. Still trained purely on reward — only the observation changes.
 - `--bev-source map`: map-truth road (privileged). No camera, so
   `--no-render` works (~270 env steps/s). Good for fast training.
 - Route channel: always the planner route placed with the true pose, so the
-  BEV agent is not yet sensors-only (next: place it with Stage 3 EKF pose).
+  BEV agent is not yet sensors-only (next: place it with Step 3 EKF pose).
 
 Map-trained policy, swapped to SegNet road with no retraining: 37/40 seeded
 turns (left 0.84, right 1.00) vs 40/40 on map road. Perceived road vs map:
@@ -101,7 +101,7 @@ Eval scripts detect BEV / steer-only from the checkpoint.
 | Observation | GPS: `cte_m`, `heading_err_deg/180`, `speed_kmh/50`, `lane_offset_frac`. Camera: cropped grayscale 84×84 stack-4 + speed + turn command. |
 | Action | `steer ∈ [-1, 1]`, `throttle ∈ [0, 1]`, brake = 0 |
 | Done | collision, `\|cte\| > 2.5 m`, ~95% route, or max steps (30 s train) |
-| Traffic | none (v1) |
+| Traffic | none by default; `--lights`, `--npc-vehicles`, and `--walkers` add it |
 | Starts | GPS train: ~70% near turns. Camera train: random origin; 85% approach a left/right/straight 18–40 m out (command = ahead), turn episodes cap ~40 s. Eval always spawn 0. |
 
 Reward (see `rl/rewards.py`): progress, CTE (deadzone 0.2 m), heading, collision,
@@ -120,7 +120,7 @@ the old EMA filter for checkpoints trained with it.
 2. **Checkpoints** — each `--out` folder holds `best_model.zip`, such as
    `models/rl_sac_bev_perc/`.
 3. **Scored eval** — `python -m rl.eval_drive` writes `drive_metrics.json` with
-   the Stage 1 fields (`collisions/km`, invasions, route %, speed, CTE).
+   the Step 1 fields (`collisions/km`, invasions, route %, speed, CTE).
 4. **Milestone** — a reward-only agent matches the IL baseline on a fixed Town01
    route. See "IL vs RL on the fixed route" below.
 
@@ -148,14 +148,14 @@ python -m rl.train --algo ppo --timesteps 100000 \
 # TensorBoard
 tensorboard --logdir models/rl_ppo
 
-# scored eval (same fields as Stage 1)
+# scored eval (same fields as Step 1)
 python -m rl.eval_drive --model models/rl_ppo/best_model.zip --algo ppo --seconds 120
 python -m rl.eval_drive --model models/rl_sac/best_model.zip --algo sac --seconds 120
 # watch at realtime (default). --slow 2 = half speed, --slow 0 = as fast as the sim
 python -m rl.eval_drive --model models/rl_sac/best_model.zip --algo sac --seconds 180
 python -m rl.eval_drive --model models/rl_sac_cam/best_model.zip --algo sac --camera --seconds 180
 
-# scorecard: GPS-RL vs camera-RL vs Stage 1 IL
+# scorecard: GPS-RL vs camera-RL vs Step 1 IL
 python -m rl.compare \
   --gps data/rl_drive_sac_<stamp>/drive_metrics.json \
   --camera data/rl_drive_sac_<stamp>/drive_metrics.json \
@@ -191,10 +191,9 @@ each; a 240 s IL run that timed out at 86.6% had 1 invasion.
 |---|---|---|
 | Driving used | ~720 s (600 s expert + 120 s DAgger), ~14.4k frames | 400k steps, ~20,000 s |
 | Labels | every frame | none (reward only) |
-| First clean fixed-route run | — | 120k steps map BEV (~8× IL); 350k total on perceived BEV (~24× IL) |
+| First clean fixed-route run | — | 120k steps map BEV; 350k total on perceived BEV |
 
-120 s of DAgger (+20% data) fixed failures 600 s of expert driving did not:
-the distribution-shift problem in practice.
+The IL figure leaves out the turn and lead-car clips, so its real total is higher.
 
 Checkpoint sweep on the same route (`data/rl_sweep/`, one deterministic run each,
 240 s cap; map checkpoints scored on map BEV, fine-tune on perceived):
@@ -222,7 +221,7 @@ perceived fine-tune, where six checkpoints in a row are clean.
 
 ## Status
 
-Starter: Gymnasium lane-keep env, shared reward, PPO and SAC CLIs, scored eval,
+Built: Gymnasium lane-keep env, shared reward, PPO and SAC CLIs, scored eval,
 `--camera` for the IL rematch, `--bev` (map-truth or perceived SegNet road) with
 optional `--speed-control`, and traffic through `--lights`, `--npc-vehicles`, and
 `--walkers`.

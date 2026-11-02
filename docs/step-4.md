@@ -22,8 +22,8 @@ Tracks / actors ──► CV prediction ──► Behavior FSM ──► Frenet 
 ```
 
 CARLA’s own miniature stack lives under `vendor/carla_agents/` (0.9.16 MIT):
-BasicAgent, BehaviorAgent, LocalPlanner, VehiclePIDController. Read those
-files — they are the production modular pattern in miniature.
+BasicAgent, BehaviorAgent, LocalPlanner, VehiclePIDController. They are the
+production modular pattern in miniature.
 
 | Layer | This repo | CARLA agents.navigation |
 |-------|-----------|-------------------------|
@@ -67,7 +67,7 @@ python -m pipeline.drive --seconds 120 --traffic 15 --perceive --debug-decisions
   --seg models/seg.pt --occupancy models/occupancy.pt
 python -m pipeline.drive --seconds 120 --ekf --plan-from-ekf --debug-decisions
 
-# Compare to Stage 1 learned agent
+# Compare to Step 1 learned agent
 python -m pipeline.compare \
   --classical data/classical_drive_XXXX/drive_metrics.json \
   --learned data/drive_log_20261009_164441/drive_metrics.json \
@@ -84,8 +84,8 @@ python -m pipeline.compare \
 | `hybrid` | Blend of PP + Stanley (close to the old waypoint follower) |
 | `mpc` | Short-horizon kinematic bicycle search |
 
-PID and MPC are **not** rivals forever — learn PID first, then MPC when you
-have a path and predictions worth looking ahead at.
+PID is the baseline. MPC pays off once there is a path and predictions worth
+looking ahead at.
 
 ## Behavior FSM states
 
@@ -113,7 +113,7 @@ The table is in `models/pipeline_preview/compare.md`.
 
 ## Status
 
-Implemented offline: vendored agents, OpenDRIVE sample dump, A*/RRT* demos,
+Implemented: vendored agents, OpenDRIVE sample dump, A*/RRT* demos,
 prediction / FSM / Frenet / control ladder, compare tooling, learned baseline
 table under `models/pipeline_preview/compare.md`.
 

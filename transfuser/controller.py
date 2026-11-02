@@ -39,6 +39,7 @@ class WaypointController:
     BRAKE_RATIO = 1.1
     CLIP_DELTA = 0.25
     MAX_THROTTLE = 0.75
+    # Added here for proportional braking.
     BRAKE_GAIN = 0.15  # brake per m/s over target
     SOFT_BRAKE_MAX = 0.3
     FIRM_RATIO = 0.6  # target under this share of current speed
@@ -46,8 +47,8 @@ class WaypointController:
     HOLD_SPEED_MPS = 0.3
 
     def __init__(self) -> None:
-        self.turn = PID(1.25, 0.75, 0.3, 40)
-        self.speed = PID(5.0, 0.5, 1.0, 40)
+        self.turn_pid = PID(1.25, 0.75, 0.3, 40)
+        self.speed_pid = PID(5.0, 0.5, 1.0, 40)
         self.firm_frames = 0
 
     def step(self, waypoints: np.ndarray, speed_mps: float) -> tuple[float, float, float, dict]:
@@ -67,7 +68,7 @@ class WaypointController:
             brake = min(self.SOFT_BRAKE_MAX, self.BRAKE_GAIN * over)
 
         delta = float(np.clip(desired - speed_mps, 0.0, self.CLIP_DELTA))
-        throttle = float(np.clip(self.speed.step(delta), 0.0, self.MAX_THROTTLE))
+        throttle = float(np.clip(self.speed_pid.step(delta), 0.0, self.MAX_THROTTLE))
         if braking:
             throttle = 0.0
 
@@ -76,6 +77,6 @@ class WaypointController:
         # Stopped with bunched waypoints: the aim angle is noise.
         if stopping:
             angle = 0.0
-        steer = float(np.clip(self.turn.step(angle), -1.0, 1.0))
+        steer = float(np.clip(self.turn_pid.step(angle), -1.0, 1.0))
         debug = {"desired_mps": desired, "aim_angle": angle, "braking": braking}
         return steer, throttle, brake, debug

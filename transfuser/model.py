@@ -16,8 +16,8 @@ Aux heads (switch off with ``aux=False``): image semantics from the camera
 branch, BEV semantics from the lidar branch, and two affordances (red light
 for ego, expert braking) from the fused vector.
 
-Backbones: ``resnet18`` (default, as in TransFuser) uses torchvision
-ResNet-18 for both branches, the camera one from ImageNet weights when
+Backbones: ``resnet18`` (default; TransFuser itself uses ResNet-34 for the
+image) uses torchvision ResNet-18 for both branches, the camera one from ImageNet weights when
 ``pretrained``; the lidar one always starts random (4-channel input, and
 ImageNet features don't transfer to a BEV histogram). The lidar branch also
 reads the goal channels drawn in transfuser/data.py. ``small`` is a
@@ -63,7 +63,10 @@ class BasicBlock(nn.Module):
 
 
 class Encoder(nn.Module):
-    """ResNet-10-ish: stem /4, then 4 stages at /4, /8, /16, /32."""
+    """The ``small`` backbone, ResNet-10-ish: stem /4, then stages at /4, /8, /16, /32.
+
+    No forward: TransFuserLite runs the stages itself, with fusion between them.
+    """
 
     def __init__(self, in_channels: int, channels: tuple[int, ...]) -> None:
         super().__init__()
@@ -83,7 +86,7 @@ class Encoder(nn.Module):
 
 
 class ResNet18Encoder(nn.Module):
-    """torchvision ResNet-18 split into the same stem + 4 stages as Encoder."""
+    """torchvision ResNet-18 split into the same stem + 4 stages as Encoder, also with no forward."""
 
     def __init__(self, in_channels: int, *, pretrained: bool) -> None:
         super().__init__()

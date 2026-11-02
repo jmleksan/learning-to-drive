@@ -1,6 +1,6 @@
 """Scored Town01 drive for a trained PPO/SAC lane-keep policy.
 
-Writes drive_metrics.json with the same fields as Stage 1.
+Writes drive_metrics.json with the same fields as Step 1.
 
   python -m rl.eval_drive --model models/rl_ppo/best_model.zip --algo ppo --seconds 120
   python -m rl.eval_drive --model models/rl_sac_cam/best_model.zip --algo sac --camera --seconds 180

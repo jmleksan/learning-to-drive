@@ -1,5 +1,5 @@
 """
-Classical modular Town01 drive with the Stage 1 scorecard.
+Classical modular Town01 drive with the Step 1 scorecard.
 
 No neural net for planning/control. Optional live EKF pose + SegNet/Occupancy
 perception. Defaults to CARLA actor GT for other agents (oracle), like BasicAgent.

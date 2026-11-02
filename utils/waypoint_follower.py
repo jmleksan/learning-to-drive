@@ -1,6 +1,6 @@
 """Tight path tracking for GRP waypoint routes (short lookahead).
 
-Stage 4 also exposes the same ideas as swappable controllers in
+Step 4 also exposes the same ideas as swappable controllers in
 ``pipeline.control`` (``pid`` / ``pure_pursuit`` / ``stanley`` / ``hybrid`` /
 ``mpc``). This module remains the original blended follower used by
 ``expert.waypoint_drive``.

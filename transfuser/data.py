@@ -88,6 +88,7 @@ IMAGE_STD = np.array([0.229, 0.224, 0.225], dtype=np.float32)
 
 __all__ = [
     "BEV_CLASSES",
+    "CAMERAS",
     "IMG_CLASSES",
     "LIDAR_CHANNELS",
     "NUM_TARGETS",
@@ -95,6 +96,7 @@ __all__ = [
     "TARGET_FAR_M",
     "TARGET_M",
     "TransfuserDataset",
+    "WAYPOINT_DT_S",
     "bev_labels_from_lidar",
     "goal_channel",
     "image_strip",
@@ -104,7 +106,7 @@ __all__ = [
 
 
 def _bev_cells(points: np.ndarray, stride: int = 1):
-    """Points → (row, col, mask) on the BEV grid, ego body dropped."""
+    """Points → (row, col, mask, grid size) on the BEV grid, ego body dropped."""
     cell = BEV_CELL_M * stride
     size = BEV_SIZE // stride
     x, y = points[:, 0], points[:, 1]

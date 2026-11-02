@@ -11,7 +11,7 @@ Gate for this step: a perception module that outputs a bird’s-eye scene (road 
 - Project the world into a bird’s-eye grid (BEV).
 - Detect vehicles/people as objects on that grid and track them across frames.
 - Replace hand-tuned lidar voting with a learned occupancy net.
-- Prove the whole chain works **live** (SegNet + OccupancyNet + tracker), then compare against CARLA truth so quality is measurable.
+- Prove the whole chain works **live** on recorded drives, with only RGB, lidar, and checkpoints (SegNet + OccupancyNet + tracker), then compare against CARLA truth so quality is measurable.
 
 ## How the stack is set up
 
@@ -72,11 +72,11 @@ Reference compare: `models/bev_preview/run_20261016_200616_compare.mp4`.
 
 ## What is still open (not required to leave Step 2)
 
-- A/B: drive policy on segmented/BEV input vs raw RGB (curriculum footnote).
+- A/B: drive policy on segmented/BEV input vs raw RGB.
 - Stable API: dump per-frame tensors (BEV + tracks) for imitation learning.
 - Stronger tracker / camera–lidar fusion / other towns.
 - Chasing production occ IoU (0.5+) — polish, not a new concept.
 
 ## Verdict
 
-Step 2 is complete for this curriculum: segmentation, depth/lidar exploration, BEV, learned occupancy, tracking, and a live scene representation independent of the driving policy. Further occupancy tweaks are optional; the learning move is to **consume** this representation in Step 1-style driving (or the next stage), not to grind another weather retrain.
+Step 2 is complete: segmentation, depth/lidar exploration, BEV, learned occupancy, tracking, and a live scene representation independent of the driving policy. Further occupancy tweaks are optional; the learning move is to **consume** this representation in Step 1-style driving (or the next stage), not to grind another weather retrain.
