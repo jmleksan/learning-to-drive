@@ -8,6 +8,20 @@ This step is **pure reward**. Privileged GPS/CTE is the cheap learner; `--camera
 is the fair rematch vs Step 1 IL (`models/radar_dagger.pt`): same Town01 route,
 same reward/scorecard, policy sees center RGB instead of map CTE. No traffic.
 
+## Result
+
+A SAC policy trained only on reward finished the 711 m fixed Town01 route with 0 collisions and 0 lane invasions, matching the IL baseline on safety and tracking the lane tighter. It took 400k steps, had no traffic, and ignored lights. Full numbers are under "IL vs RL on the fixed route."
+
+## What I learned
+
+- **RL is finicky.** The policy found every gap in the reward. It felt less like setting rules and more like tricking the model into behaving the way I wanted.
+- **It stopped before turns instead of learning them.** Crashing was so expensive that stopping was the safe choice, so it never practiced the turn. The fix was to make not trying cost as much as failing: stalling is now -20 and ends the episode, the same price as leaving the lane.
+- **Every patch created a new loophole.** An idle penalty with a hard cutoff at 3 km/h just taught the car to crawl at slightly above 3 km/h, so it became a ramp up to 10 km/h. Pricing a stall too low let crawling push the off-lane penalty out past the discount horizon.
+- **It wobbled to find the center of the lane.** Centering paid, so weaving back and forth around the line scored well. That took a deadzone around the center, jerk penalties, extra cost for steering when already centered, and a bonus for holding steady.
+- **Watching training helped.** The car drives in the simulator while it trains, so failure states were easy to see as they happened.
+
+RL has real potential and I found it interesting, but it changed how I think about it: the reward is the real program, and the policy will run it literally.
+
 ## Why IL plateaus
 
 The expert only shows states it visits. A cloned policy drifts a little, sees a
