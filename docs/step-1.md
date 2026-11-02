@@ -4,6 +4,16 @@ Step 1 is a Town01 drive where the network owns the controls. The route only sup
 
 That gate passed on `data/drive_log_20261009_164441`.
 
+## Result
+
+The final drive had 0 collisions and 4 lane invasions over 89.8% of a 2.6 km Town01 route. Full numbers are under "The run that passed."
+
+## What I learned
+
+- **Data shapes behavior more than I expected.** I didn't realize how directly the dataset decides what the car does. Most of the fixes below changed the data rather than the model.
+- **A perfect expert doesn't teach recovery.** I learned this by watching the car learn from normal expert driving. The expert never drifts, so it never shows how to come back. The student isn't perfect, so any small mistake put it somewhere it had never seen, and the error grew from there.
+- **You have to put mistakes into the data on purpose.** That is why recovery shows up in several places here: the recorder nudges the car off-center about every 10 s, side cameras get corrected steering labels, training shifts images sideways with a matching label, and DAgger labels the states the policy actually reaches.
+
 ## What the drive has to do
 
 - Output throttle and brake, not steer alone.

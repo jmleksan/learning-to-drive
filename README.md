@@ -11,7 +11,7 @@ A hands-on build of a self-driving stack in the [CARLA](https://carla.org/) simu
 ## What I learned
 
 - **Good open-loop metrics can hide a broken driver.** TransFuser-lite's first version had low waypoint error but ignored its route target at junctions. Mirroring the target exposed it. A 50 m target, goal channels, and junction sampling fixed it together, and which of them mattered most is unknown ([Step 6](docs/step-6.md)).
-- **More data can't supply missing information.** In Step 1, extra camera frames of rear-end crashes didn't help, because the model had no range. Radar on the throttle and brake gave it one ([Step 1](docs/step-1.md)).
+- **Data shapes behavior more than I expected.** A perfect expert never makes a mistake, so it never shows how to recover. The student does make mistakes, and each one put it somewhere it had never seen. Recovery had to be added on purpose, with nudges during recording, corrected side-camera labels, and DAgger ([Step 1](docs/step-1.md)).
 - **Classical is a baseline, not what production does.** I expected more ML in Steps 3 and 4, but they turned out almost entirely deterministic, with ML only in perception. Waymo describes [ML across perception, prediction, and planning](https://waymo.com/blog/2021/08/most-experienced-urban-driver/), so the classical stack taught the structure rather than the state of the art ([Step 4](docs/step-4.md)).
 - **Average driving says little about hard scenarios.** The same model that handled Town01 traffic scored under 14 on four Dev10 routes ([Step 7](docs/step-7.md)).
 - **One benchmark run is not a measurement.** A route went from 100 to 36 with no meaningful code change, so comparing models takes several runs ([Step 7](docs/step-7.md)).
