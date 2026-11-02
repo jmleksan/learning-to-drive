@@ -4,6 +4,16 @@ Step 7 replaces our own drive scorecard with a standard benchmark. The Step 6
 model runs unchanged on Bench2Drive, which uses Leaderboard 2.0 scoring on short
 routes that each contain one hard scenario.
 
+## Result
+
+On the 10-route Dev10 subset, the Step 6 model scored Driving Score 38.6, Route Completion 66.9%, Infraction Penalty 0.70, and Success 10%. An earlier run scored 41.2. Full numbers are under "Results: Dev10." The full 220 routes were not run.
+
+## What I learned
+
+- **Benchmarks are more intense than I expected.** Even running only ten routes meant a separate CARLA version and Python environment, patches to the benchmark, and matching every sensor to what the model trained on. The full set would take roughly 12 hours.
+- **The scores mean something specific.** A route can be finished and still score 2.2 after six collisions, or score 100 while driving well below traffic speed. Driving Score is a particular trade-off, not an overall grade of how well the car drives.
+- **A better score is a good sign, not a guarantee.** It could be a one-off. One route went from 100 to 36 with no meaningful code change, and a real bug fix didn't measurably move the average. Saying a model improved takes several runs.
+
 ## Metrics
 
 - **Route Completion (RC)**: percent of the route driven.
