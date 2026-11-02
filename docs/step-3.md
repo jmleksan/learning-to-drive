@@ -10,7 +10,10 @@ On a synthetic log with noisy GPS, the EKF cut position error by a factor of fiv
 
 ## What I learned
 
+- **The simulator is more exact than real life.** This step helped me understand the most about how the two differ. We can add some noise, but GPS is never so accurate that I would fully trust it for a precise location. That led me to think about how privileged information in the simulator won't always translate to real life, and to take that into account when building these systems.
+- **Privileged information has to be questioned constantly.** Could the model actually know its location during inference if I wasn't feeding that in directly? Where would it get that information? Should it even be included in training if I can't find a real way to provide it? This came up again whenever I added a new data type or input, and [Step 5](step-5.md) shows what happened when a model used to privileged information was given real perception.
 - **No training was needed.** I expected ML to be doing more of the work. Here a motion model and noise settings beat raw GPS with nothing learned, and the same idea came back in Step 7 as a small filter in the benchmark agent.
+- **Fusion is its own topic.** I learned the trade-offs between the different strategies, and how much there is to it on its own, both in the methods below and in TransFuser itself ([Step 6](step-6.md)).
 - **Fusion ≠ concat.** Localization fuses by trust (process vs measurement noise). Perception fuses by geometry on a shared BEV.
 - **Late fusion** keeps SegNet / OccupancyNet as separate decisions; the grid is the meeting place.
 - **BEVFusion** mixes *features* per cell before detecting — powerful, but not required for this gate.

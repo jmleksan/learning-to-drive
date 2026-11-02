@@ -8,15 +8,26 @@ A hands-on build of a self-driving stack in the [CARLA](https://carla.org/) simu
 
 **Latest result:** TransFuser-lite, trained only on Town01, scored **Driving Score 38.6** on the 10-route Bench2Drive Dev10 subset (Route Completion 66.9%, Infraction Penalty 0.70). It drove 3.3 km of Town01 traffic with one collision and 24 lane invasions, then timed out on four of the ten hard scenarios.
 
+## Why I built this
+
+I've always felt like autonomous driving was just an interesting problem. I've also always hated driving, so learning how to kill human driving was ambitious and exciting. It's an interesting problem that could save lives and cure my hatred of driving.
+
 ## What I learned
 
-- **Good open-loop metrics can hide a broken driver.** TransFuser-lite's first version had low waypoint error but ignored its route target at junctions. Mirroring the target exposed it. A 50 m target, goal channels, and junction sampling fixed it together, and which of them mattered most is unknown ([Step 6](docs/step-6.md)).
 - **Data shapes behavior more than I expected.** A perfect expert never makes a mistake, so it never shows how to recover. The student does make mistakes, and each one put it somewhere it had never seen. Recovery had to be added on purpose, with nudges during recording, corrected side-camera labels, and DAgger ([Step 1](docs/step-1.md)).
+- **Training and inference are different problems.** One bug had the model acting on a camera image about a second old, only while driving, and it crashed out every time. Giving the right data to the right model isn't enough, because how its outputs get used and affect the environment is a different story. I believed it was a training issue, so I chased a training bug that never existed and changed the data and strategy in ways that didn't solve the actual problem and might have hurt performance. I wish I had inspected inference sooner ([Step 1](docs/step-1.md)).
 - **Sensors aren't the car's eyes.** I expected cameras and lidar to feed the driver directly. In Step 2 they feed a separate system that builds a bird's-eye scene, and the driver reads that. Step 6 replaces the hand-built version with one network that learns the conversion ([Step 2](docs/step-2.md)).
+- **Privileged information has to be questioned constantly.** Whenever I added an input, I had to ask where the model would really get it at inference, and whether it belonged in training if I couldn't provide it. Training on it can also backfire: the RL policy got used to true BEV, so giving it real perception hurt it, dropping it from 40 of 40 turns to 37 of 40. Some of these steps still use simulator truth, as listed under [Known limitations](#known-limitations) ([Step 3](docs/step-3.md), [Step 5](docs/step-5.md)).
 - **Classical is a baseline, not what production does.** I expected more ML in Steps 3 and 4, but they turned out almost entirely deterministic, with ML only in perception. Waymo describes [ML across perception, prediction, and planning](https://waymo.com/blog/2021/08/most-experienced-urban-driver/), so the classical stack taught the structure rather than the state of the art ([Step 4](docs/step-4.md)).
 - **RL does what you reward, not what you meant.** The policy stopped before turns rather than risk a crash, crawled just above an idle cutoff, and wobbled around the lane center, so the reward had to close each loophole. It felt more like tricking a model into good behavior than writing rules ([Step 5](docs/step-5.md)).
 - **The architecture is the easy part.** I expected modern models to be huge and complicated, but TransFuser's core fits in under 300 lines. The real struggle was good data ([Step 6](docs/step-6.md)).
+- **More sensors didn't clearly mean better driving.** I assumed they would lead to more accuracy, so a closed-loop result too thin to separate fusion from camera-only left me a little confused, which is always good since it's a new direction to look in. Tesla doesn't use lidar, and this gave me a new perspective on that decision. Should we require lidar if it's more accurate but not necessary for the same results ([Step 6](docs/step-6.md))?
+- **You need both numbers and watching.** Numbers are good for seeing a problem at scale, but they can't reliably catch every problem or say what it is. When the RL car swerved, the numbers might have looked fine in aggregate while the movement would have been awful on a real road ([Step 5](docs/step-5.md)). TransFuser-lite's first version had low waypoint error and still ignored its route at junctions ([Step 6](docs/step-6.md)).
 - **A better score is a good sign, not a guarantee.** The model that handled Town01 traffic scored under 14 on four Dev10 routes, and one route went from 100 to 36 with no meaningful code change, so an improvement can be a one-off ([Step 7](docs/step-7.md)).
+
+## How AI was used
+
+AI wrote the software, helped with research, made the learning plan, and helped draft these write-ups. I chose the direction and steered it toward the issues I noticed. It sped up the process, and the main focus was helping me explore and learn quickly.
 
 ## Steps
 
@@ -142,6 +153,10 @@ bash bench/run.sh dev10 models/transfuser.pt
 - The exact cause of the Low quality crash on CARLA 0.9.15 was not identified.
 - Some inputs use simulator truth. Step 1 reads the true traffic light state, and Step 6 places its route targets with the true pose. The Step 7 agent uses GPS and compass instead.
 - Dev10 was run twice, so its variation between runs is only roughly known.
+
+## What's next
+
+Next I want to build a better-performing model and run it on benchmarks with my own additions. The goal is to learn and experiment with the many different AV methods out there and see where I can find potential myself.
 
 ## Acknowledgments
 

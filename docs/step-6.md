@@ -14,6 +14,8 @@ With 30 traffic cars, the model drove 3.3 km of Town01 with 1 collision, 24 lane
 
 - **The architecture is simpler than I expected.** When I thought of modern approaches I pictured huge, complicated models. TransFuser turned out to be easy to understand and implement: two ResNets, a small transformer between them at four scales, and a GRU. `transfuser/model.py` is under 300 lines. This is a scaled-down version, but the ideas are all there.
 - **The real struggle is getting good data.** The model ignored its route until the targets and junction sampling changed. Mirrored labels looked fine in validation, and the expert's deadlocks had to be cleaned out of the recordings. Then Step 7 showed the model failing on scenarios it had never seen, in towns it had never seen. None of that needed a bigger network.
+- **Auxiliary tasks shape what a model learns.** This was interesting and exciting. Forcing the end-to-end model to also reconstruct things, like image semantics and a BEV, makes sense as a way to shape its learning toward the real goal, and I can see how that applies elsewhere. Here the auxiliary heads also made the features inspectable.
+- **More sensors didn't clearly mean better driving.** I assumed more sensors would lead to more accuracy. Fusion won open loop, but closed loop was too thin to separate it from camera-only, which left me a little confused. That's always good, since it's a new direction to look in. Tesla doesn't use lidar, and this gave me a new perspective on the quality of that decision and whether some trade-offs are necessary. Should we require lidar if it's a more accurate sensor but not necessary for the same results?
 
 ## Architecture
 

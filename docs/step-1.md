@@ -13,6 +13,7 @@ The final drive had 0 collisions and 4 lane invasions over 89.8% of a 2.6 km Tow
 - **Data shapes behavior more than I expected.** I didn't realize how directly the dataset decides what the car does. Most of the fixes below changed the data rather than the model.
 - **A perfect expert doesn't teach recovery.** I learned this by watching the car learn from normal expert driving. The expert never drifts, so it never shows how to come back. The student isn't perfect, so any small mistake put it somewhere it had never seen, and the error grew from there.
 - **You have to put mistakes into the data on purpose.** That is why recovery shows up in several places here: the recorder nudges the car off-center about every 10 s, side cameras get corrected steering labels, training shifts images sideways with a matching label, and DAgger labels the states the policy actually reaches.
+- **Training and inference are different problems.** One bug had the model acting on a camera image about a second old, only while driving, and it crashed out every time. Giving the right data to the right model isn't enough, because how its outputs get used and affect the environment is a different story. I believed it was a training issue, so I chased a training bug that never existed and changed the data and strategy in ways that didn't solve the actual problem and might have hurt performance. I wish I had inspected inference sooner.
 
 ## What the drive has to do
 
@@ -36,6 +37,8 @@ At drive time there is no path follower and no lead-car override. If the checkpo
 ## What we changed to get here
 
 Early drives could hold a lane and then failed in a few repeatable ways.
+
+**With traffic on, the car steered from an old picture.** The 20 warm-up ticks after traffic spawned each left a camera image in the queue. The drive loop took the oldest image every tick, so it never caught up, and the model steered from a view about 1 s old. It overcorrected one way, then the other, and the swings grew. Recording always used the newest image, so only driving was affected. `_image_for_frame` in `expert/drive.py` now discards anything older than the current tick.
 
 **The command arrived, and the wheel stayed straight.** `TURN_RIGHT` means the upcoming maneuver, not "steer now." Most recorded turn frames are still the straight approach, so the turn head outputs about 0 until the corner is in view. On a T-junction the command showed up about a second before a wall. More of the same curving-lane footage would not show that case. `expert/record_turns.py` starts a few meters before each exit and records one short clip per turn, with the command fixed for the whole clip.
 

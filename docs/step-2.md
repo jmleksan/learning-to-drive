@@ -14,10 +14,13 @@ The gate passed: on recorded drives, the stack built a bird's-eye scene of road,
 - **Building perception by hand felt odd, then made sense.** Segmenting pixels, projecting them onto the ground, and voting on lidar hits seemed like a strange way to see, until working through each stage showed what each one contributes. Step 6 is the contrast: one network reads the camera and lidar directly and learns that conversion as part of driving.
 - **Perception is its own product.** A policy should eventually eat a BEV/track list, not reinvent seeing from raw pixels every time — even if end-to-end RGB can still work for demos.
 - **GT is for labels, not for runtime.** Train on CARLA tags/depth; ship SegNet + lidar pillars + OccupancyNet.
-- **Sensor choice is empirical.** Stereo was the “right” textbook path for depth; lidar won for object BEV in this town and resolution.
-- **Hand rules ≈ what the net should learn.** Hit counts and blob cleanup are occupancy in disguise. The net cleans noise and fills gaps when the data mix is honest.
 - **Data mix beats more of the same.** Too much empty/weather → shy net. Too little empty → ghosts. Busy clear traffic + a little empty + a little weather is the useful recipe.
 - **Metrics that match the goal.** Val IoU (~0.2–0.3 here) is a training signal. For “usable,” watch **veh@present**, **empty-FP**, and whether the lead vehicle stays boxed on the compare video.
+
+## Technical notes
+
+- **Sensor choice is empirical.** Stereo was the “right” textbook path for depth; lidar won for object BEV in this town and resolution.
+- **Hand rules ≈ what the net should learn.** Hit counts and blob cleanup are occupancy in disguise. The net cleans noise and fills gaps when the data mix is honest.
 - **Filters are not cheating for Step 2.** Threshold, class allowlist, and track confirm are how you turn a noisy grid into a driving-facing scene list. Retrain when filters stop helping.
 
 ## What this step has to do

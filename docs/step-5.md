@@ -19,6 +19,8 @@ A SAC policy trained only on reward finished the 711 m fixed Town01 route with 0
 - **Every patch created a new loophole.** An idle penalty with a hard cutoff at 3 km/h just taught the car to crawl at slightly above 3 km/h, so it became a ramp up to 10 km/h. Pricing a stall too low let crawling push the off-lane penalty out past the discount horizon.
 - **It wobbled to find the center of the lane.** Centering paid, so weaving back and forth around the line scored well. That took a deadzone around the center, jerk penalties, extra cost for steering when already centered, and a bonus for holding steady.
 - **Watching training helped.** The car drives in the simulator while it trains, so failure states were easy to see as they happened.
+- **The numbers don't show everything.** Reading them is always vague. They're good for getting a sense of a problem at scale, but they can't reliably catch every problem or say what it is. When the car was swerving, the numbers might have looked fine in aggregate, but the movement would have been awful on a real road. You need both qualitative and quantitative measures.
+- **Training on privileged information can hurt at inference.** The policy got used to true BEV, so giving it our perceived BEV with no retraining dropped it from 40 of 40 turns to 37 of 40. Providing information in training can hurt if the model doesn't get the same quality during inference, so that difference needs constant thought whenever a new input is added.
 
 RL has real potential and I found it interesting, but it changed how I think about it: the reward is the real program, and the policy will run it literally.
 
