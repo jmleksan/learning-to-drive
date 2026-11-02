@@ -55,9 +55,13 @@ def get_entry_point() -> str:
     return "TransfuserAgent"
 
 
-def gps_to_xy(lat: float, lon: float) -> np.ndarray:
-    """Lat/lon → world meters (x east, y south, like CARLA)."""
-    return np.array([lon * METERS_PER_DEGREE, -lat * METERS_PER_DEGREE])
+def gps_to_xy(lat: float, lon: float, lon_scale: float) -> np.ndarray:
+    """Lat/lon → world meters (x east, y south, like CARLA), up to a fixed offset.
+
+    Longitude shrinks with latitude. Towns 11, 13, and 15 are referenced near
+    41 degrees, where leaving this out stretches east-west distances by a third.
+    """
+    return np.array([lon * METERS_PER_DEGREE * lon_scale, -lat * METERS_PER_DEGREE])
 
 
 def heading_axes(compass: float) -> tuple[np.ndarray, np.ndarray]:
@@ -95,14 +99,16 @@ class TransfuserAgent(autonomous_agent.AutonomousAgent):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model, _ = load_checkpoint(path_to_conf_file.split("+")[0], self.device)
         self.controller = WaypointController()
+        self.lon_scale = math.cos(math.radians(self._plan_gps_HACK[0][0]["lat"]))
         self.targets = RouteTargets(
-            np.array([gps_to_xy(p["lat"], p["lon"]) for p, _ in self._plan_gps_HACK])
+            np.array([gps_to_xy(p["lat"], p["lon"], self.lon_scale) for p, _ in self._plan_gps_HACK])
         )
         self.rng = np.random.default_rng(0)
         self.pos: np.ndarray | None = None
         self.compass = 0.0
         self.prev_sweep: np.ndarray | None = None
         self.step = 0
+        self.debug_origin: np.ndarray | None = None
         self.debug_csv = None
         debug_path = os.environ.get("TF_AGENT_DEBUG")
         if debug_path:
@@ -136,7 +142,7 @@ class TransfuserAgent(autonomous_agent.AutonomousAgent):
             compass = self.compass
         turned = (compass - self.compass + math.pi) % (2 * math.pi) - math.pi
         self.compass = compass
-        gps = gps_to_xy(lat, lon)
+        gps = gps_to_xy(lat, lon, self.lon_scale)
         if self.pos is None:
             self.pos = gps
             return 0.0
@@ -196,12 +202,14 @@ class TransfuserAgent(autonomous_agent.AutonomousAgent):
         if self.debug_csv:
             t = self.hero_actor.get_transform()
             f, r = t.get_forward_vector(), t.get_right_vector()
-            true_near = [
-                (near[0] - t.location.x) * f.x + (near[1] - t.location.y) * f.y,
-                (near[0] - t.location.x) * r.x + (near[1] - t.location.y) * r.y,
-            ]
+            hero = np.array([t.location.x, t.location.y])
+            if self.debug_origin is None:
+                self.debug_origin = self.pos - hero
+            pos_err = self.pos - self.debug_origin - hero
+            near_rel = near - self.debug_origin - hero
+            true_near = [near_rel[0] * f.x + near_rel[1] * f.y, near_rel[0] * r.x + near_rel[1] * r.y]
             self.debug_csv.write(
-                f"{timestamp:.2f},{self.pos[0] - t.location.x:.3f},{self.pos[1] - t.location.y:.3f},"
+                f"{timestamp:.2f},{pos_err[0]:.3f},{pos_err[1]:.3f},"
                 f"{target[0]:.3f},{target[1]:.3f},{true_near[0]:.3f},{true_near[1]:.3f},"
                 f"{speed:.2f},{steer:.3f},{throttle:.3f},{brake:.3f},{len(points)},"
                 f"{dbg['desired_mps']:.3f},{aff[0]:.3f},{aff[1]:.3f}\n"
