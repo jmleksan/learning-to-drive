@@ -82,16 +82,32 @@ python3.12 -m venv .venv
 .venv/bin/python -m scripts.connect
 ```
 
-### Example commands
+## Running each stage
+
+Checkpoints are not in git, so a stage that needs another stage's model only works after you train that model. Stages can otherwise run in any order. Full commands and options are in each write-up.
+
+| # | Needs CARLA | Needs first | Produces | Commands |
+|---|---|---|---|---|
+| 1 | Yes | Nothing | `models/radar_dagger.pt` | [step-1](docs/step-1.md#commands) |
+| 2 | Yes | Nothing | `models/seg.pt`, `models/occupancy.pt` | [step-2](docs/step-2.md#commands-that-matter) |
+| 3 | No for the synthetic test | Nothing | EKF metrics and plot | [step-3](docs/step-3.md#commands-that-matter) |
+| 4 | Yes | Step 1 logs for the comparison, Step 2 models for `--perceive` | Classical drive metrics | [step-4](docs/step-4.md#commands) |
+| 5 | Yes | `models/seg.pt` for perceived BEV, Step 1 logs for the comparison | SAC or PPO policy | [step-5](docs/step-5.md#commands) |
+| 6 | Yes | Nothing | `models/transfuser.pt` | [step-6](docs/step-6.md#run-it) |
+| 7 | Yes, 0.9.15 | `models/transfuser.pt` | Driving Score | [below](#running-the-benchmark) |
+
+The shortest path to a driving model is Step 6:
 
 ```bash
-# Record expert data
+# Record several runs, keeping one for validation
 python -m expert.record --semantic --lidar --gnss --cameras center,left,right --seconds 180
 
-# Train and drive TransFuser-lite
+# Train, then drive with 30 traffic cars
 python -m transfuser.train --data data/run_A data/run_B --val data/run_C --out models/transfuser.pt
 python -m transfuser.drive --model models/transfuser.pt --traffic 30 --spawn-index 42
 ```
+
+Long GPU runs on WSL can die with a CUDA "unknown error". `--auto-resume` continues training from the last checkpoint, as described in [Step 6](docs/step-6.md#run-it).
 
 ### Running the benchmark
 

@@ -58,6 +58,34 @@ The 600 s timer ended the run with about 260 m of route left. On the last left t
 
 Brightness and weather augmentation were never added. This pass is one Town01 route, not a repeated loop of the town. Radar stays off the steering trunk until there are demonstrations of steering around a car, which the expert does not do today.
 
+## Commands
+
+The exact commands behind `models/radar_dagger.pt` were not saved. This is the same
+sequence rebuilt from the tools' options, so it shows the workflow and has not been
+re-run to confirm it reproduces the result above. Replace the `data/` names with
+your own runs.
+
+```bash
+# 1. Record expert driving, then the two situations it rarely covers
+python -m expert.record --seconds 600
+python -m expert.record_turns --map Town01
+python -m expert.record_leads --map Town01
+
+# 2. Train with radar on the throttle and brake heads
+python -m expert.train --data data/run_A data/turns_A data/leads_A \
+  --radar --stack-frames 3 --oversample-turns --out models/radar.pt
+
+# 3. DAgger: the policy drives and the expert labels the recoveries
+python -m expert.dagger --from-run data/run_A --model models/radar.pt --seconds 120
+
+# 4. Retrain with the DAgger data
+python -m expert.train --data data/run_A data/turns_A data/leads_A data/dagger_A \
+  --radar --stack-frames 3 --oversample-turns --out models/radar_dagger.pt
+
+# 5. Drive and score
+python -m expert.drive --model models/radar_dagger.pt --seconds 600
+```
+
 ## Other tools in `expert/`
 
 | Script | Role |
