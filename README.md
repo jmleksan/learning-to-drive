@@ -15,8 +15,8 @@ A hands-on build of a self-driving stack in the [CARLA](https://carla.org/) simu
 - **Sensors aren't the car's eyes.** I expected cameras and lidar to feed the driver directly. In Step 2 they feed a separate system that builds a bird's-eye scene, and the driver reads that. Step 6 replaces the hand-built version with one network that learns the conversion ([Step 2](docs/step-2.md)).
 - **Classical is a baseline, not what production does.** I expected more ML in Steps 3 and 4, but they turned out almost entirely deterministic, with ML only in perception. Waymo describes [ML across perception, prediction, and planning](https://waymo.com/blog/2021/08/most-experienced-urban-driver/), so the classical stack taught the structure rather than the state of the art ([Step 4](docs/step-4.md)).
 - **RL does what you reward, not what you meant.** The policy stopped before turns rather than risk a crash, crawled just above an idle cutoff, and wobbled around the lane center, so the reward had to close each loophole. It felt more like tricking a model into good behavior than writing rules ([Step 5](docs/step-5.md)).
-- **Average driving says little about hard scenarios.** The same model that handled Town01 traffic scored under 14 on four Dev10 routes ([Step 7](docs/step-7.md)).
-- **One benchmark run is not a measurement.** A route went from 100 to 36 with no meaningful code change, so comparing models takes several runs ([Step 7](docs/step-7.md)).
+- **The architecture is the easy part.** I expected modern models to be huge and complicated, but TransFuser's core fits in under 300 lines. The real struggle was good data ([Step 6](docs/step-6.md)).
+- **Average driving says little, and one run says less.** The model that handled Town01 traffic scored under 14 on four Dev10 routes, and one route went from 100 to 36 with no meaningful code change ([Step 7](docs/step-7.md)).
 
 ## Steps
 

@@ -6,6 +6,15 @@ future waypoints. A PID controller turns those into steer, throttle, and brake.
 Like Step 1 it learns from the expert, but the output is a trajectory instead
 of raw controls, and auxiliary heads make the features inspectable.
 
+## Result
+
+With 30 traffic cars, the model drove 3.3 km of Town01 with 1 collision, 24 lane invasions, and all 26 turns taken, which passes the gate of at most 1 collision per km. With 40 pedestrians added it hit none of them in 1.4 km, though how many it actually met is unknown, and it had one collision incident with a car (3 logged collisions), which fails that gate at 2.09 per km, or 0.70 counting the incident once. Full numbers are under "Results."
+
+## What I learned
+
+- **The architecture is simpler than I expected.** When I thought of modern approaches I pictured huge, complicated models. TransFuser turned out to be easy to understand and implement: two ResNets, a small transformer between them at four scales, and a GRU. `transfuser/model.py` is under 300 lines. This is a scaled-down version, but the ideas are all there.
+- **The real struggle is getting good data.** The model ignored its route until the targets and junction sampling changed. Mirrored labels looked fine in validation, and the expert's deadlocks had to be cleaned out of the recordings. Then Step 7 showed the model failing on scenarios it had never seen, in towns it had never seen. None of that needed a bigger network.
+
 ## Architecture
 
 ```
