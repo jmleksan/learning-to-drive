@@ -12,10 +12,10 @@ A hands-on build of a self-driving stack in the [CARLA](https://carla.org/) simu
 
 - **Good open-loop metrics can hide a broken driver.** TransFuser-lite's first version had low waypoint error but ignored its route target at junctions. Mirroring the target exposed it. A 50 m target, goal channels, and junction sampling fixed it together, and which of them mattered most is unknown ([Step 6](docs/step-6.md)).
 - **Data shapes behavior more than I expected.** A perfect expert never makes a mistake, so it never shows how to recover. The student does make mistakes, and each one put it somewhere it had never seen. Recovery had to be added on purpose, with nudges during recording, corrected side-camera labels, and DAgger ([Step 1](docs/step-1.md)).
+- **Sensors aren't the car's eyes.** I expected cameras and lidar to feed the driver directly. In Step 2 they feed a separate system that builds a bird's-eye scene, and the driver reads that. Step 6 replaces the hand-built version with one network that learns the conversion ([Step 2](docs/step-2.md)).
 - **Classical is a baseline, not what production does.** I expected more ML in Steps 3 and 4, but they turned out almost entirely deterministic, with ML only in perception. Waymo describes [ML across perception, prediction, and planning](https://waymo.com/blog/2021/08/most-experienced-urban-driver/), so the classical stack taught the structure rather than the state of the art ([Step 4](docs/step-4.md)).
 - **Average driving says little about hard scenarios.** The same model that handled Town01 traffic scored under 14 on four Dev10 routes ([Step 7](docs/step-7.md)).
 - **One benchmark run is not a measurement.** A route went from 100 to 36 with no meaningful code change, so comparing models takes several runs ([Step 7](docs/step-7.md)).
-- **Input details decide whether a model works at all.** At the wrong lidar density, the car barely moved on the benchmark ([Step 7](docs/step-7.md)).
 
 ## Steps
 
