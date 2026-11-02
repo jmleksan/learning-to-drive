@@ -6,7 +6,6 @@ import carla
 # Lateral offset still drives recovery labels. Left/right also yaw outward so
 # Stage 3 multi-cam BEV gets real side coverage (not just parallel stereo).
 # Wide cams stay yaw=0 for stereo depth experiments.
-RECOVERY_STEER_OFFSET = 0.08
 
 CAMERA_SPECS = (
     ("center", carla.Location(x=1.5, y=0.0, z=2.4), 0.0),
@@ -16,7 +15,6 @@ CAMERA_SPECS = (
     ("right_wide", carla.Location(x=1.5, y=1.00, z=2.4), 0.0),
 )
 
-CAMERA_BY_NAME = {name: (loc, yaw) for name, loc, yaw in CAMERA_SPECS}
 
 # CARLA +y is right. Left-shifted camera → positive (right) recovery steer.
 RECOVERY_BY_CAMERA = {
@@ -180,21 +178,14 @@ def attach_rgb_cameras(
     return cameras
 
 
-def recovery_steer(
-    camera: str,
-    steer: float,
-    offset: float | None = None,
-    *,
-    command: str | None = None,
-) -> float:
+def recovery_steer(camera: str, steer: float) -> float:
     """Add a small centering nudge for a laterally shifted camera.
 
     Skipped once the expert is already turning (|steer|>=0.12) so a corner
     label does not flip sign. On a straight approach the nudge stays, including
     under TURN_* intent, so the branch learns "stay in lane until the corner."
     """
-    del command  # intent no longer gates the offset; magnitude does
-    extra = RECOVERY_BY_CAMERA.get(camera, 0.0) if offset is None else offset
+    extra = RECOVERY_BY_CAMERA.get(camera, 0.0)
     if extra == 0.0 or abs(steer) >= 0.12:
         return max(-1.0, min(1.0, steer))
     return max(-1.0, min(1.0, steer + extra))

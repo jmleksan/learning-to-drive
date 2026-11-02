@@ -47,6 +47,7 @@ from utils.routing import (
     draw_target,
     needs_replan,
     pick_junction_heavy_destination,
+    route_xyz,
 )
 from utils.run_meta import apply_run_meta, ensure_map, load_run_meta
 from utils.spectator import follow_vehicle
@@ -98,13 +99,6 @@ def _cleanup(actors: list[carla.Actor]) -> None:
         _safe_destroy(actor)
 
 
-def _route_xyz(route: list) -> list[tuple[float, float, float]]:
-    return [
-        (wp.transform.location.x, wp.transform.location.y, wp.transform.location.z)
-        for wp, _ in route
-    ]
-
-
 def classical_drive(
     *,
     seconds: float = 120.0,
@@ -154,7 +148,7 @@ def classical_drive(
     print("Building GRP ...")
     grp = build_planner(world_map)
     dest, route, score = pick_junction_heavy_destination(grp, origin, spawn_pts)
-    route_pts = _route_xyz(route)
+    route_pts = route_xyz(route)
     planned_m = path_length_m(route_pts, 0, len(route_pts) - 1)
     print(
         f"Route: {len(route)} wps, junction={score:.1%}, "
@@ -307,7 +301,7 @@ def classical_drive(
                     dest, route, score = pick_junction_heavy_destination(
                         grp, plan_loc, spawn_pts
                     )
-                    route_pts = _route_xyz(route)
+                    route_pts = route_xyz(route)
                     planned_m += path_length_m(route_pts, 0, len(route_pts) - 1)
                     agent.reset()
                     if live_perc is not None:

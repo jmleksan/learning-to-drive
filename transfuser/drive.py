@@ -47,6 +47,7 @@ from utils.routing import (
     lookahead_target,
     needs_replan,
     pick_junction_heavy_destination,
+    route_xyz,
 )
 from utils.run_meta import ensure_map
 from utils.spectator import follow_vehicle
@@ -105,13 +106,6 @@ def _for_frame(q: queue.Queue, frame: int, timeout: float = 5.0):
             return data
 
 
-def _route_xyz(route: list) -> list[tuple[float, float, float]]:
-    return [
-        (wp.transform.location.x, wp.transform.location.y, wp.transform.location.z)
-        for wp, _ in route
-    ]
-
-
 def _ego_xy(transform: carla.Transform, target: carla.Location) -> np.ndarray:
     """World location → ego frame (x forward, y right)."""
     fwd = transform.get_forward_vector()
@@ -150,7 +144,7 @@ def transfuser_drive(
     print("Building GRP ...")
     grp = build_planner(world_map)
     dest, route, score = pick_junction_heavy_destination(grp, spawn_pts[spawn_index].location, spawn_pts)
-    route_pts = _route_xyz(route)
+    route_pts = route_xyz(route)
     planned_m = path_length_m(route_pts, 0, len(route_pts) - 1)
     print(f"Route: {len(route)} wps, junction={score:.1%}, len={planned_m:.0f}m")
 
@@ -230,7 +224,7 @@ def transfuser_drive(
                 if needs_replan(loc, route, route_index, threshold_m=TARGET_FAR_M + 5.0):
                     credit_m += path_length_m(route_pts, 0, max_route_index)
                     dest, route, score = pick_junction_heavy_destination(grp, loc, spawn_pts)
-                    route_pts = _route_xyz(route)
+                    route_pts = route_xyz(route)
                     planned_m += path_length_m(route_pts, 0, len(route_pts) - 1)
                     route_index = max_route_index = 0
                     print(f"  replan @ {frame_idx}: {len(route)} wps junction={score:.1%}")

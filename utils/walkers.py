@@ -6,6 +6,8 @@ import random
 
 import carla
 
+from utils.traffic import _actor_alive
+
 
 def _is_walker_controller(actor: carla.Actor) -> bool:
     try:
@@ -141,13 +143,6 @@ def partition_walker_actors(
         else:
             others.append(actor)
     return controllers, walkers, others
-
-
-def _actor_alive(actor: carla.Actor) -> bool:
-    try:
-        return bool(actor.is_alive)
-    except Exception:
-        return False
 
 
 def pedestrian_gap_m(

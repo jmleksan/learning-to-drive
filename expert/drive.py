@@ -43,16 +43,17 @@ from utils.lane_metrics import format_lane_metric_fields, lane_metrics_at
 from utils.lights import light_to_onehot, normalize_light_state
 from utils.routing import (
     build_planner,
+    draw_destination,
     draw_route,
     draw_target,
-    draw_destination,
+    farthest_spawn_index,
     hold_turn_command,
     lookahead_target,
-    farthest_spawn_index,
     needs_replan,
     pick_junction_heavy_destination,
     pick_next_destination,
     plan_spawn_to_spawn,
+    route_xyz,
 )
 from utils.radar import (
     encode_radar,
@@ -197,7 +198,6 @@ def drive_run(
     steer_rate: float = 0.04,
     draw_path: bool = True,
     raw_steer: bool = False,
-    turn_speed_kmh: float = 12.0,
     log_dir: Path | None = None,
     traffic: int | None = None,
     tm_port: int = 8000,
@@ -355,7 +355,7 @@ def drive_run(
                     _dest, route, _score = pick_junction_heavy_destination(
                         grp, spawn_pts[spawn_index].location, spawn_pts
                     )
-                route_pts = _route_xyz(route)
+                route_pts = route_xyz(route)
                 planned_m = path_length_m(route_pts, 0, len(route_pts) - 1)
                 print(
                     f"Fixed route (same as RL env): spawn {spawn_index} -> "
@@ -377,7 +377,7 @@ def drive_run(
                     f"align={stats.get('forward_align', 0):+.2f}  "
                     f"len={stats.get('length_m', 0):.0f}m"
                 )
-                route_pts = _route_xyz(route)
+                route_pts = route_xyz(route)
                 planned_m = path_length_m(route_pts, 0, len(route_pts) - 1)
             events.collision_gap_frames = max(1, int(drive_fps))
             print(f"Driving with {model_path} for {seconds:.0f}s (model controls) ...")
@@ -455,7 +455,7 @@ def drive_run(
                                     route_pts, 0, max_route_index
                                 )
                             route = route_new
-                            route_pts = _route_xyz(route)
+                            route_pts = route_xyz(route)
                             planned_m += path_length_m(
                                 route_pts, 0, len(route_pts) - 1
                             )
@@ -693,14 +693,6 @@ def _finish_drive_log(
     print(f"Wrote {drive_log_path} ({len(drive_rows)} frames)")
 
 
-def _route_xyz(route: list) -> list[tuple[float, float, float]]:
-    points: list[tuple[float, float, float]] = []
-    for wp, _opt in route:
-        loc = wp.transform.location
-        points.append((float(loc.x), float(loc.y), float(loc.z)))
-    return points
-
-
 def _attach_score_sensors(
     world: carla.World,
     vehicle: carla.Vehicle,
@@ -861,15 +853,6 @@ def main() -> None:
         help="Disable steer smooth/rate/FOLLOW+speed clamps (pure network steer)",
     )
     parser.add_argument(
-        "--turn-speed-kmh",
-        type=float,
-        default=16.0,
-        help=(
-            "Max speed while turning with |steer|>=0.12 (0=off). "
-            "Only applies after turn-in, not on the straight approach."
-        ),
-    )
-    parser.add_argument(
         "--log-dir",
         type=Path,
         default=None,
@@ -921,7 +904,6 @@ def main() -> None:
         steer_rate=args.steer_rate,
         draw_path=not args.no_draw_path,
         raw_steer=args.raw_steer,
-        turn_speed_kmh=args.turn_speed_kmh,
         log_dir=args.log_dir,
         traffic=traffic_arg,
         tm_port=args.tm_port,

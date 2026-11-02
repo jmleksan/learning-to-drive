@@ -97,10 +97,6 @@ def overfit_test(
     return final_loss
 
 
-def load_model(model_path: Path, device: torch.device) -> PilotNet:
-    return load_checkpoint(model_path, device)
-
-
 def offline_eval(
     data: Path,
     model: PilotNet,
@@ -236,7 +232,7 @@ def main() -> None:
     if args.model is not None:
         if not args.model.exists():
             raise FileNotFoundError(f"Model not found: {args.model}")
-        model = load_model(args.model, device)
+        model = load_checkpoint(args.model, device)
         offline_mse, preds = offline_eval(args.data, model, device)
         steer_std, _, _ = prediction_spread(preds)
     else:

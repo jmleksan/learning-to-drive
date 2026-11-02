@@ -527,9 +527,7 @@ def dagger_run(
                             Image.fromarray(rgb).save(
                                 image_dirs[cam_name] / f"{frame_idx:06d}.png"
                             )
-                            steer = recovery_steer(
-                                cam_name, log_steer, command=command_name
-                            )
+                            steer = recovery_steer(cam_name, log_steer)
                             row = {
                                 "frame": str(frame_idx),
                                 "camera": cam_name,
@@ -620,7 +618,6 @@ def main() -> None:
         action="store_true",
         help="Hide route HUD overlay (on by default; spectator only, not in RGB)",
     )
-    parser.add_argument("--draw-path", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--no-fast-lights", action="store_true")
     parser.add_argument("--max-red-wait-s", type=float, default=6.0)
     parser.add_argument("--out", type=Path, default=Path("data"))

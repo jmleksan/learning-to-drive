@@ -243,7 +243,6 @@ class _Run:
         horizon = int(round(WAYPOINT_DT_S * fps))
         offsets = horizon * np.arange(1, NUM_WAYPOINTS + 1)
         keep = _stop_mask(speed < STOP_SPEED_MPS, fps)
-        self.dropped_stopped = int((~keep[::stride]).sum())
 
         self.samples: list[dict] = []
         for i in range(0, len(frames), stride):
@@ -317,10 +316,6 @@ class TransfuserDataset(Dataset):
             side = abs(self.runs[ri].samples[si]["target"][1])
             out.append(weight if side > JUNCTION_LATERAL_M else 1.0)
         return out
-
-    def sample_info(self, idx: int) -> dict:
-        ri, si = self.index[idx]
-        return self.runs[ri].samples[si]
 
     def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         ri, si = self.index[idx]

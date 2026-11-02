@@ -61,12 +61,13 @@ from utils.routing import (
     nearest_route_index,
     pick_junction_heavy_destination,
     plan_spawn_to_spawn,
+    route_xyz,
 )
 from utils.run_meta import ensure_map
 from utils.spectator import follow_vehicle
 from utils.state import speed_kmh
 from utils.sync_mode import SynchronousMode
-from utils.traffic import clear_other_vehicles, spawn_npc_traffic
+from utils.traffic import _actor_alive, clear_other_vehicles, spawn_npc_traffic
 from utils.traffic_signs import speed_up_traffic_lights
 from utils.vehicles import attach_rgb_camera, attach_rgb_cameras, spawn_vehicle
 from utils.walkers import destroy_walkers, spawn_walkers
@@ -168,13 +169,6 @@ def _rgb_to_gray84(image: carla.Image) -> np.ndarray:
     return gray[None, ...]
 
 
-def _route_xyz(route: list) -> list[tuple[float, float, float]]:
-    return [
-        (wp.transform.location.x, wp.transform.location.y, wp.transform.location.z)
-        for wp, _ in route
-    ]
-
-
 def env_kwargs_for_model(model) -> dict:
     """camera / bev / action flags matching a saved policy's spaces.
 
@@ -194,13 +188,6 @@ def env_kwargs_for_model(model) -> dict:
         kwargs["camera"] = not bev
         kwargs["bev_objects"] = bev and shape[0] == BEV_OBJECT_CHANNELS
     return kwargs
-
-
-def _alive(actor) -> bool:
-    try:
-        return bool(actor.is_alive)
-    except Exception:
-        return False
 
 
 class CarlaLaneKeepEnv(gym.Env):
@@ -664,7 +651,7 @@ class CarlaLaneKeepEnv(gym.Env):
                 self.grp, origin, self.spawn_pts
             )
         self._route = route
-        self._route_pts = _route_xyz(route)
+        self._route_pts = route_xyz(route)
         self._planned_m = path_length_m(
             self._route_pts, 0, max(0, len(self._route_pts) - 1)
         )
@@ -917,7 +904,7 @@ class CarlaLaneKeepEnv(gym.Env):
         if self.n_walkers:
             # Walkers persist across episodes (spawning them is slow); top up
             # only when most have gone.
-            alive = [w for w in self._walkers if _alive(w)]
+            alive = [w for w in self._walkers if _actor_alive(w)]
             if len(alive) < self.n_walkers // 2:
                 destroy_walkers(self._walker_ctrls, self._walkers)
                 self._walkers, self._walker_ctrls = spawn_walkers(
@@ -1004,7 +991,7 @@ class CarlaLaneKeepEnv(gym.Env):
             (self._walkers, WALKER_LOOKAHEAD_M, WALKER_LATERAL_M, WALKER_GAP_M, WALKER_KMH_PER_M, "walker"),
         ):
             for actor in actors:
-                if not _alive(actor):
+                if not _actor_alive(actor):
                     continue
                 d = self._route_distance_to(actor.get_location(), look, lat)
                 if d is None:
@@ -1025,7 +1012,7 @@ class CarlaLaneKeepEnv(gym.Env):
             (self._walkers, objs.walkers, MIN_WALKER_HALF_M),
         ):
             for actor in actors:
-                if not _alive(actor):
+                if not _actor_alive(actor):
                     continue
                 tf = actor.get_transform()
                 if tf.location.distance(ego) > BEV_OBJECT_RADIUS_M:

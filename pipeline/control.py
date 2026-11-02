@@ -9,32 +9,10 @@ import carla
 import numpy as np
 
 from utils.state import speed_kmh
+from utils.waypoint_follower import _crosstrack_m, _to_vehicle_frame, _wrap_deg
 
 _WHEELBASE_M = 2.5
 _MAX_STEER_RAD = math.radians(70.0)
-
-
-def _wrap_deg(delta: float) -> float:
-    return (delta + 180.0) % 360.0 - 180.0
-
-
-def _to_vehicle_frame(
-    transform: carla.Transform, target: carla.Location
-) -> tuple[float, float]:
-    dx = target.x - transform.location.x
-    dy = target.y - transform.location.y
-    yaw = math.radians(transform.rotation.yaw)
-    local_x = math.cos(yaw) * dx + math.sin(yaw) * dy
-    local_y = -math.sin(yaw) * dx + math.cos(yaw) * dy
-    return local_x, local_y
-
-
-def crosstrack_m(path_tf: carla.Transform, vehicle_loc: carla.Location) -> float:
-    """+ = vehicle is right of the path heading."""
-    dx = vehicle_loc.x - path_tf.location.x
-    dy = vehicle_loc.y - path_tf.location.y
-    yaw = math.radians(path_tf.rotation.yaw)
-    return -math.sin(yaw) * dx + math.cos(yaw) * dy
 
 
 @dataclass
@@ -98,7 +76,7 @@ class PIDController(Controller):
         self, vehicle: carla.Vehicle, goal: ControlTarget
     ) -> carla.VehicleControl:
         tf = vehicle.get_transform()
-        cte = crosstrack_m(goal.path_transform, tf.location)
+        cte = _crosstrack_m(goal.path_transform, tf.location)
         path_yaw = (
             goal.heading_yaw_deg
             if goal.heading_yaw_deg is not None
@@ -210,7 +188,7 @@ class StanleyController(Controller):
         self, vehicle: carla.Vehicle, goal: ControlTarget
     ) -> carla.VehicleControl:
         tf = vehicle.get_transform()
-        cte = crosstrack_m(goal.path_transform, tf.location)
+        cte = _crosstrack_m(goal.path_transform, tf.location)
         path_yaw = (
             goal.heading_yaw_deg
             if goal.heading_yaw_deg is not None
@@ -268,7 +246,7 @@ class HybridController(Controller):
     ) -> carla.VehicleControl:
         pp = self._pp.compute(vehicle, goal)
         st = self._stanley.compute(vehicle, goal)
-        cte = abs(crosstrack_m(goal.path_transform, vehicle.get_location()))
+        cte = abs(_crosstrack_m(goal.path_transform, vehicle.get_location()))
         # More Stanley when off path.
         w = 0.55 if cte > 0.35 else 0.65
         steer = (1.0 - w) * pp.steer + w * st.steer
@@ -327,7 +305,7 @@ class MPCController(Controller):
         yaw0 = math.radians(tf.rotation.yaw)
         # Local frame at ego: path point relative.
         local_x, local_y = _to_vehicle_frame(tf, goal.target)
-        cte0 = crosstrack_m(goal.path_transform, tf.location)
+        cte0 = _crosstrack_m(goal.path_transform, tf.location)
         v_des = max(goal.desired_speed_kmh / 3.6, 0.0)
 
         best_cost = float("inf")

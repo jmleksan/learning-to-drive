@@ -28,7 +28,6 @@ IMAGE_WIDTH = 160
 IMAGE_HEIGHT = 120
 # Temporal context: stack this many RGB frames (oldest → newest) as channels.
 STACK_FRAMES = 3
-IN_CHANNELS = 3 * STACK_FRAMES
 
 
 def _run_has_traffic(run_dir: Path) -> bool:

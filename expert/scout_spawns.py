@@ -33,7 +33,6 @@ class SpawnScore:
 
 
 def probe_spawn(
-    client,
     world,
     tm,
     *,
@@ -120,7 +119,6 @@ def main() -> None:
     ):
         for i, spawn_index in enumerate(indices, start=1):
             score = probe_spawn(
-                client,
                 world,
                 tm,
                 spawn_index=spawn_index,

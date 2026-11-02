@@ -42,7 +42,7 @@ from utils.connection import connect_client
 from utils.images import image_to_array
 from utils.lane_metrics import format_lane_metric_fields, lane_metrics_at
 from utils.radar import format_radar_m, format_radar_status, pop_radar_range, try_attach_radar
-from utils.routing import _wrap_yaw_delta_deg, build_planner, plan_route
+from utils.routing import _wrap_yaw_delta_deg, build_planner, plan_route, route_length_m
 from utils.run_meta import ensure_map, find_spawn_index, save_run_meta
 from utils.spectator import follow_vehicle
 from utils.state import speed_kmh
@@ -159,15 +159,6 @@ def list_lead_approaches(
     return approaches
 
 
-def _route_length_m(route: list) -> float:
-    total = 0.0
-    for i in range(1, len(route)):
-        a = route[i - 1][0].transform.location
-        b = route[i][0].transform.location
-        total += a.distance(b)
-    return total
-
-
 def list_turn_queues(
     world_map: carla.Map,
     grp,
@@ -206,7 +197,7 @@ def list_turn_queues(
             route = plan_route(grp, start.transform.location, end.transform.location)
         except Exception:
             continue
-        if len(route) < 3 or _route_length_m(route) > gap_m + 55.0:
+        if len(route) < 3 or route_length_m(route) > gap_m + 55.0:
             continue
         approaches.append(
             LeadApproach(

@@ -22,6 +22,22 @@ LOOKAHEAD_METERS = 12.0
 ROUTE_REPLAN_REMAINING_M = 25.0
 
 
+def route_xyz(route: list) -> list[tuple[float, float, float]]:
+    return [
+        (wp.transform.location.x, wp.transform.location.y, wp.transform.location.z)
+        for wp, _ in route
+    ]
+
+
+def route_length_m(route: list) -> float:
+    total = 0.0
+    for i in range(1, len(route)):
+        a = route[i - 1][0].transform.location
+        b = route[i][0].transform.location
+        total += a.distance(b)
+    return total
+
+
 def build_planner(world_map: carla.Map, sampling: float = DEFAULT_SAMPLING) -> GlobalRoutePlanner:
     return GlobalRoutePlanner(world_map, sampling)
 
@@ -347,7 +363,6 @@ def hold_turn_command(
     min_hold_m: float = 28.0,
     max_hold_m: float = 70.0,
     min_turn_completed_deg: float = 45.0,
-    clear_yaw_deg: float = 10.0,
     vehicle_yaw: float | None = None,
 ) -> tuple[str, int, str | None, int | None]:
     """
@@ -388,7 +403,6 @@ def hold_turn_command(
                 hold_lookahead_m=hold_lookahead_m,
                 min_hold_m=min_hold_m,
                 min_turn_completed_deg=min_turn_completed_deg,
-                clear_yaw_deg=clear_yaw_deg,
                 max_hold_m=max_hold_m,
                 vehicle_yaw=vehicle_yaw,
             ):
@@ -405,7 +419,6 @@ def hold_turn_command(
                 hold_lookahead_m=hold_lookahead_m,
                 min_hold_m=min_hold_m,
                 min_turn_completed_deg=min_turn_completed_deg,
-                clear_yaw_deg=clear_yaw_deg,
                 max_hold_m=max_hold_m,
                 vehicle_yaw=vehicle_yaw,
             ):
@@ -453,7 +466,6 @@ def _turn_intent_finished(
     hold_lookahead_m: float,
     min_hold_m: float = 28.0,
     min_turn_completed_deg: float,
-    clear_yaw_deg: float,
     max_hold_m: float = 70.0,
     vehicle_yaw: float | None = None,
 ) -> bool:

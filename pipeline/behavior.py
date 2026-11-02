@@ -42,13 +42,11 @@ class BehaviorFSM:
         turn_kmh: float = 16.0,
         stop_distance_m: float = 8.0,
         yield_distance_m: float = 14.0,
-        follow_gap_m: float = 10.0,
     ) -> None:
         self.cruise_kmh = float(cruise_kmh)
         self.turn_kmh = float(turn_kmh)
         self.stop_distance_m = float(stop_distance_m)
         self.yield_distance_m = float(yield_distance_m)
-        self.follow_gap_m = float(follow_gap_m)
         self.state = BehaviorState.LANE_FOLLOW
 
     def reset(self) -> None:

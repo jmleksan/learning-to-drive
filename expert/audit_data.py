@@ -63,7 +63,6 @@ class RunReport:
     max_abs_steer: float
     mean_speed: float | None
     stopped_pct: float | None
-    has_speed: bool
     follow_lane_pct: float | None
     junction_pct: float | None
     multicam: bool
@@ -110,7 +109,6 @@ def _lane_stats(rows: list[dict[str, str]]) -> LaneStats:
 def score_run(
     run_dir: Path,
     *,
-    min_turn_pct: float = 5.0,
     max_stopped_pct: float = 20.0,
     min_frames: int = 600,
     max_follow_lane_pct: float = 60.0,
@@ -254,7 +252,6 @@ def score_run(
         max_abs_steer=max(steers) if steers else 0.0,
         mean_speed=mean_speed,
         stopped_pct=stopped_pct,
-        has_speed=has_speed,
         follow_lane_pct=follow_lane_pct,
         junction_pct=junction_pct,
         multicam=multicam,
@@ -296,7 +293,6 @@ def main() -> None:
         help="Optional single run dir (else scan --data)",
     )
     parser.add_argument("--data", type=Path, default=Path("data"))
-    parser.add_argument("--min-turn-pct", type=float, default=5.0)
     parser.add_argument("--max-stopped-pct", type=float, default=20.0)
     parser.add_argument("--min-frames", type=int, default=600)
     parser.add_argument("--max-follow-lane-pct", type=float, default=60.0)
@@ -353,7 +349,6 @@ def main() -> None:
         if args.legacy:
             report = score_run(
                 run,
-                min_turn_pct=args.min_turn_pct,
                 max_stopped_pct=args.max_stopped_pct,
                 min_frames=args.min_frames,
                 require_multicam=False,
@@ -370,7 +365,6 @@ def main() -> None:
         else:
             report = score_run(
                 run,
-                min_turn_pct=args.min_turn_pct,
                 max_stopped_pct=args.max_stopped_pct,
                 min_frames=args.min_frames,
                 max_follow_lane_pct=args.max_follow_lane_pct,

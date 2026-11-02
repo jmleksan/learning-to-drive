@@ -1120,9 +1120,7 @@ def record_run(
                             Image.fromarray(rgb).save(
                                 image_dirs[cam_name] / f"{frame_idx:06d}.png"
                             )
-                            steer = recovery_steer(
-                                cam_name, log_steer, command=command
-                            )
+                            steer = recovery_steer(cam_name, log_steer)
                             row = {
                                 "frame": str(frame_idx),
                                 "camera": cam_name,
@@ -1291,12 +1289,6 @@ def main() -> None:
         action="store_true",
         help="Hide route HUD overlay in the UE spectator (on by default; HUD only, not in RGB)",
     )
-    # legacy no-op kept so old scripts don't break
-    parser.add_argument(
-        "--draw-path",
-        action="store_true",
-        help=argparse.SUPPRESS,
-    )
     parser.add_argument(
         "--cil",
         action="store_true",
@@ -1309,11 +1301,6 @@ def main() -> None:
         "--tm-expert",
         action="store_true",
         help="Same as --cil",
-    )
-    parser.add_argument(
-        "--path-expert",
-        action="store_true",
-        help="Force path follower (default; useful if scripts pass conflicting flags)",
     )
     parser.add_argument(
         "--no-mid-turn-nudge",

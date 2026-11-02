@@ -46,6 +46,7 @@ from utils.routing import (
     geometric_command_from_route,
     plan_route,
     remaining_route_distance_m,
+    route_length_m,
 )
 from utils.run_meta import ensure_map, find_spawn_index, save_run_meta
 from utils.spectator import follow_vehicle
@@ -153,15 +154,6 @@ def list_junction_maneuvers(
             )
     maneuvers.sort(key=lambda m: (m.command, m.junction_id))
     return maneuvers
-
-
-def _route_length_m(route: list) -> float:
-    total = 0.0
-    for i in range(1, len(route)):
-        a = route[i - 1][0].transform.location
-        b = route[i][0].transform.location
-        total += a.distance(b)
-    return total
 
 
 def _place(vehicle: carla.Vehicle, waypoint: carla.Waypoint) -> None:
@@ -281,7 +273,7 @@ def record_turns(
                         continue
                     if len(route) < 3:
                         continue
-                    length_m = _route_length_m(route)
+                    length_m = route_length_m(route)
                     if length_m > before_m + after_m + 30.0:
                         print(
                             f"  skip junction {maneuver.junction_id} "
@@ -345,9 +337,7 @@ def record_turns(
                             Image.fromarray(rgb).save(
                                 image_dirs[cam_name] / f"{frame_idx:06d}.png"
                             )
-                            steer = recovery_steer(
-                                cam_name, float(control.steer), command=command
-                            )
+                            steer = recovery_steer(cam_name, float(control.steer))
                             row = {
                                 "frame": str(frame_idx),
                                 "camera": cam_name,
