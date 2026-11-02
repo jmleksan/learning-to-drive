@@ -4,6 +4,19 @@ Step 3 adds a second product next to perception: **where is the ego car?** Perce
 
 Gate for this step: under injected GNSS noise, an EKF ego-pose beats raw GPS (lower position RMSE) on the same log. Multi-cam late road fusion and a radar BEV cue are the perception stretch — not a BEVFusion reimplementation.
 
+## Result
+
+On a synthetic log with noisy GPS, the EKF cut position error by a factor of five: 0.98 m RMSE against 4.87 m for raw GNSS, with 0.56° mean yaw error over 600 frames. The gate passed. It has not been confirmed on a re-recorded CARLA run with real sensors, and the checklist below still marks that as open.
+
+## What I learned
+
+- **No training was needed.** I expected ML to be doing more of the work. Here a motion model and noise settings beat raw GPS with nothing learned, and the same idea came back in Step 7 as a small filter in the benchmark agent.
+- **Fusion ≠ concat.** Localization fuses by trust (process vs measurement noise). Perception fuses by geometry on a shared BEV.
+- **Late fusion** keeps SegNet / OccupancyNet as separate decisions; the grid is the meeting place.
+- **BEVFusion** mixes *features* per cell before detecting — powerful, but not required for this gate.
+- **GNSS alone jitters; IMU/odom alone drifts.** Together they make a usable pose.
+- **Multi-cam** is the same ground-plane paint with different extrinsics — more road cells on the sides, same OccupancyNet objects.
+
 ## What this step has to do
 
 - Record GNSS + IMU (+ GT pose) into `localization.csv` with a shared ENU meter frame.
@@ -60,14 +73,6 @@ python -m segmentation.train --data data/run_OLD data/run_NEW --epochs 20 --out 
 ```
 
 Reference synth gate: `models/loc_preview_synth/metrics.json` and `trajectory.png` (green=GT, blue=EKF, red=GNSS). EKF RMSE 0.98 m against 4.87 m for raw GNSS over 600 frames.
-
-## What was learned
-
-- **Fusion ≠ concat.** Localization fuses by trust (process vs measurement noise). Perception fuses by geometry on a shared BEV.
-- **Late fusion** keeps SegNet / OccupancyNet as separate decisions; the grid is the meeting place.
-- **BEVFusion** mixes *features* per cell before detecting — powerful, but not required for this gate.
-- **GNSS alone jitters; IMU/odom alone drifts.** Together they make a usable pose.
-- **Multi-cam** is the same ground-plane paint with different extrinsics — more road cells on the sides, same OccupancyNet objects.
 
 ## Gate checklist
 

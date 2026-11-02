@@ -9,6 +9,16 @@ The illuminating part is the comparison: same scorecard as Step 1
 (`collisions/km`, lane invasions, route %, speed, CTE) against
 `models/radar_dagger.pt`.
 
+## Result
+
+One 120 s Town01 drive with the `hybrid` controller had 0 collisions and 0 lane invasions over 462 m. That passes the gate of at most 1 collision per km, but it is a single short drive, and only `hybrid` of the five controllers was driven. `models/pipeline_preview/compare.md` tables it against Step 1, but Step 1 drove for 600 s, so the route percentages (56.8% and 89.8%) are not like for like. The raw drive log was not kept.
+
+## What I learned
+
+- **The classical stack has almost no ML.** I expected more. Prediction is constant velocity, behavior is a state machine, planning is costed Frenet samples, and control is geometry and PID, so all of it is deterministic. ML only appears through `--perceive`, where SegNet and OccupancyNet replace the simulator's actor list.
+- **That is not how production stacks work.** I had assumed this was close to what Waymo does, and it isn't. Waymo describes [ML running across perception, behavior prediction, and motion planning](https://waymo.com/blog/2021/08/most-experienced-urban-driver/), and now a [shared Foundation Model with a separate onboard validation layer](https://waymo.com/blog/2025/12/demonstrably-safe-ai-for-autonomous-driving/) that checks its trajectories. Step 4 is a baseline for learning the structure, not a production design.
+- **Deterministic has one real upside.** Every decision traces back to a rule, and `--debug-decisions` shows the reason in the spectator view. That is much harder with a network.
+
 ## Architecture
 
 ```
@@ -110,24 +120,6 @@ Match conditions as closely as practical:
 - Classical: `pipeline.drive` with chosen `--controller`
 
 The table is in `models/pipeline_preview/compare.md`.
-
-## Status
-
-Implemented: vendored agents, OpenDRIVE sample dump, A*/RRT* demos,
-prediction / FSM / Frenet / control ladder, compare tooling, learned baseline
-table under `models/pipeline_preview/compare.md`.
-
-**Live classical Town01 drive:** one 120 s drive with the `hybrid` controller
-had 0 collisions and 0 lane invasions over 462 m. `models/pipeline_preview/compare.md`
-tables it against Step 1, but Step 1 drove for 600 s, so the route percentages
-(56.8% and 89.8%) are not like for like. The raw drive log was not kept.
-
-## What was learned
-
-- Why production stacks stay modular even when components are learned.
-- Where classical wins (lights, explicit stop distance, tunable costs) and where
-  the learned agent still feels smoother or more “human.”
-- Why hybrids dominate: classical structure + learned perception/prediction.
 
 ## Package map
 
