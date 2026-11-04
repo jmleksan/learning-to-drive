@@ -8,6 +8,18 @@ routes that each contain one hard scenario.
 
 On the 10-route Dev10 subset, the Step 6 model scored Driving Score 38.6, Route Completion 66.9%, Infraction Penalty 0.70, and Success 10%. An earlier run scored 41.2. Full numbers are under "Results: Dev10." The full 220 routes were not run.
 
+![The agent passing cyclists on a foggy highway](images/step7_hazard.gif)
+
+*HazardAtSideLane in Town05 at 2× speed: the agent holds its lane in fog and passes cyclists on the shoulder. This re-run scored 100, as in the Dev10 runs.*
+
+![The agent driving into cars cutting into its lane](images/step7_cutin.gif)
+
+*StaticCutIn in Town15 at 1.5× speed: cars merge into the agent's lane and it drives through them instead of yielding. This re-run had 7 vehicle collisions and a Driving Score of 1.1. The two Dev10 runs scored 7.3 with 1 collision and 2.2 with 6. Nothing like this was in its Town01 training data.*
+
+![The agent's three cameras on two Bench2Drive routes](images/step7_agent_view.png)
+
+*The agent's left, center, and right cameras on two Bench2Drive test routes, in fog and in a dense city, neither of which looks like Town01.*
+
 ## What I learned
 
 - **Benchmarks are more intense than I expected.** Even running only ten routes meant a separate CARLA version and Python environment, patches to the benchmark, and matching every sensor to what the model trained on. The full set would take roughly 12 hours.

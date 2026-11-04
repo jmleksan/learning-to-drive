@@ -8,6 +8,14 @@ Gate for this step: a perception module that outputs a bird’s-eye scene (road 
 
 The gate passed: on recorded drives, the stack built a bird's-eye scene of road, objects, and tracks from RGB and lidar alone, with no CARLA truth at inference. Validation occupancy IoU stayed around 0.2–0.3, so the useful checks were whether vehicles were found when present and how many false objects appeared on empty road.
 
+![Camera, simulator truth, the live bird's-eye scene, and where they match](images/step2_perception.gif)
+
+*A recorded night drive. From left: camera, simulator truth, the bird's-eye scene built live from camera and lidar, and the match (green agrees, red missed, blue extra).*
+
+![Camera, true labels, and SegNet's prediction](images/step2_segmentation.png)
+
+*SegNet on a validation frame: camera, true labels, prediction.*
+
 ## What I learned
 
 - **Sensors aren't the car's eyes.** I expected cameras and lidar to work like eyes for the driver. Here the controller never sees them. They feed a separate system that converts them into a BEV scene, and the driver reads that instead.
@@ -77,7 +85,7 @@ python -m perception.bev --data data/run_20261016_200616 --video --mode compare 
 ```
 
 Checkpoints: `models/seg.pt`, `models/occupancy.pt`.  
-Reference compare: `models/bev_preview/run_20261016_200616_compare.mp4`.
+Reference compare: `models/bev_preview/run_20261016_200616_compare.mp4` (not in git). The GIF at the top of this page is a clip of it.
 
 ## What is still open (not required to leave Step 2)
 

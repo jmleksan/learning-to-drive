@@ -12,6 +12,14 @@ same reward/scorecard, policy sees center RGB instead of map CTE. No traffic.
 
 A SAC policy trained only on reward finished the 711 m fixed Town01 route with 0 collisions and 0 lane invasions, matching the IL baseline on safety and tracking the lane tighter. It took 400k steps, had no traffic, and ignored lights. Full numbers are under "IL vs RL on the fixed route."
 
+![The SAC policy driving the fixed route](images/step5_drive.gif)
+
+*The SAC policy on perceived BEV, on the fixed route with no traffic, at 2.5× speed. This re-run finished 95.1% of the route with 0 collisions and 0 lane invasions.*
+
+![Perceived road next to map road, with the route in green](images/step5_bev_perceived_vs_map.png)
+
+*What the policy sees: road perceived from the cameras by SegNet (left) and the map's true road (right). Green is the route and white is the car.*
+
 ## What I learned
 
 - **RL is finicky.** The policy found every gap in the reward. It felt less like setting rules and more like tricking the model into behaving the way I wanted.

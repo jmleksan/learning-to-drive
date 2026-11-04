@@ -46,6 +46,9 @@ def spawn_vehicle(
     spawn_index: int | None = None,
 ) -> carla.Vehicle:
     blueprint = choose_vehicle_blueprint(world, filter_pattern)
+    # Lets other clients, like scripts/chase_cam.py, tell the ego car from traffic.
+    if blueprint.has_attribute("role_name"):
+        blueprint.set_attribute("role_name", "hero")
     spawn_points = world.get_map().get_spawn_points()
     if not spawn_points:
         raise RuntimeError("Map has no spawn points.")

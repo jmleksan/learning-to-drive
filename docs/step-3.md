@@ -8,6 +8,10 @@ Gate for this step: under injected GNSS noise, an EKF ego-pose beats raw GPS (lo
 
 On a synthetic log with noisy GPS, the EKF cut position error by a factor of five: 0.98 m RMSE against 4.87 m for raw GNSS, with 0.56° mean yaw error over 600 frames. The gate passed. It has not been confirmed on a re-recorded CARLA run with real sensors, and the checklist below still marks that as open.
 
+<img src="images/step3_ekf_trajectory.png" width="420" alt="EKF track over the true path, with noisy GNSS points around it">
+
+*The synthetic test: raw GNSS in red, the true path in green, and the EKF in blue, sitting on top of the true path.*
+
 ## What I learned
 
 - **The simulator is more exact than real life.** This step helped me understand the most about how the two differ. We can add some noise, but GPS is never so accurate that I would fully trust it for a precise location. That led me to think about how privileged information in the simulator won't always translate to real life, and to take that into account when building these systems.
@@ -75,7 +79,7 @@ python -m expert.record --semantic --lidar --cameras center,left,right --seconds
 python -m segmentation.train --data data/run_OLD data/run_NEW --epochs 20 --out models/seg.pt
 ```
 
-Reference synth gate: `models/loc_preview_synth/metrics.json` and `trajectory.png` (green=GT, blue=EKF, red=GNSS). EKF RMSE 0.98 m against 4.87 m for raw GNSS over 600 frames.
+Reference synth gate: `models/loc_preview_synth/metrics.json` (not in git), with the trajectory plot shown at the top of this page (green=GT, blue=EKF, red=GNSS). EKF RMSE 0.98 m against 4.87 m for raw GNSS over 600 frames.
 
 ## Gate checklist
 

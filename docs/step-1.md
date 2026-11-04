@@ -8,6 +8,10 @@ That gate passed on `data/drive_log_20261009_164441`.
 
 The final drive had 0 collisions and 4 lane invasions over 89.8% of a 2.6 km Town01 route. Full numbers are under "The run that passed."
 
+![The imitation model driving Town01 in traffic](images/step1_drive.gif)
+
+*`radar_dagger.pt` on the fixed Town01 route with 15 traffic cars, at 2.5× speed. This re-run had 0 collisions and 0 lane invasions over 397 m in 150 s.*
+
 ## What I learned
 
 - **Data shapes behavior more than I expected.** I didn't realize how directly the dataset decides what the car does. Most of the fixes below changed the data rather than the model.

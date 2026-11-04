@@ -13,6 +13,10 @@ The illuminating part is the comparison: same scorecard as Step 1
 
 One 120 s Town01 drive with the `hybrid` controller had 0 collisions and 0 lane invasions over 462 m. That passes the gate of at most 1 collision per km, but it is a single short drive, and only `hybrid` of the five controllers was driven. `models/pipeline_preview/compare.md` tables it against Step 1, but Step 1 drove for 600 s, so the route percentages (56.8% and 89.8%) are not like for like. The raw drive log was not kept.
 
+![The classical pipeline turning at a junction in traffic](images/step4_drive.gif)
+
+*The `hybrid` controller with 15 traffic cars, at 2× speed. The caption in each frame is the logged decision: behavior, reason, and speed. It turns, yields to a truck crossing ahead, then cruises. This re-run matched the result above: 462 m, 0 collisions, 0 lane invasions.*
+
 ## What I learned
 
 - **The classical stack has almost no ML.** I expected more. Prediction is constant velocity, behavior is a state machine, planning is costed Frenet samples, and control is geometry and PID, so all of it is deterministic. ML only appears through `--perceive`, where SegNet and OccupancyNet replace the simulator's actor list.

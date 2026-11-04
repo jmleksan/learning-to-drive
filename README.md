@@ -2,9 +2,9 @@
 
 A hands-on build of a self-driving stack in the [CARLA](https://carla.org/) simulator, from a behavior-cloned CNN to a simplified TransFuser scored on a public benchmark. Seven subsystems (imitation learning, perception, localization, classical planning, reinforcement learning, sensor fusion, and benchmarking) were each built and tested on a 6 GB laptop GPU. Each step has its own code, its own pass/fail gate, and a write-up of what broke and why.
 
-![Camera view, simulator truth, the model's bird's-eye scene, and where they agree](docs/images/perception_compare.png)
+![TransFuser-lite pulling away from a stop and turning in Town01 traffic](docs/images/step6_drive.gif)
 
-*Step 2 on a recorded night drive: camera, simulator truth, the model's own bird's-eye scene, and where the two agree.*
+*TransFuser-lite (Step 6) pulling away from a stop and turning, with 30 traffic cars, at 2× speed. Not every drive is this clean, and [Step 6](docs/step-6.md) shows one that isn't.*
 
 **Latest result:** TransFuser-lite, trained only on Town01, scored **Driving Score 38.6** on the 10-route Bench2Drive Dev10 subset (Route Completion 66.9%, Infraction Penalty 0.70). It drove 3.3 km of Town01 traffic with one collision and 24 lane invasions, then timed out on four of the ten hard scenarios.
 
@@ -30,6 +30,10 @@ I've always felt like autonomous driving was just an interesting problem. I've a
 AI wrote the software, helped with research, made the learning plan, and helped draft these write-ups. I chose the direction and steered it toward the issues I noticed. It sped up the process, and the main focus was helping me explore and learn quickly.
 
 ## Steps
+
+![Camera view, simulator truth, the model's bird's-eye scene, and where they agree](docs/images/perception_compare.png)
+
+*Step 2 on a recorded night drive: camera, simulator truth, the model's own bird's-eye scene, and where the two agree.*
 
 | # | Step | What was built | Result | Write-up |
 |---|---|---|---|---|
@@ -84,7 +88,7 @@ Run 2 in detail:
 | `bench/` | Step 7: Bench2Drive agent, runner, score table, chart, patch |
 | `utils/` | Shared CARLA helpers: connection, routing, sensors, scoring |
 | `vendor/carla_agents/` | CARLA's MIT-licensed `agents` module, version 0.9.16 |
-| `scripts/` | Connection check, map picker, vehicle spawn, GPU reset |
+| `scripts/` | Connection check, map picker, vehicle spawn, GPU reset, chase camera for drive GIFs |
 | `results/` | Benchmark results kept in git |
 | `docs/` | One write-up per stage |
 

@@ -10,6 +10,18 @@ of raw controls, and auxiliary heads make the features inspectable.
 
 With 30 traffic cars, the model drove 3.3 km of Town01 with 1 collision, 24 lane invasions, and all 26 turns taken, which passes the gate of at most 1 collision per km. With 40 pedestrians added it hit none of them in 1.4 km, though how many it actually met is unknown, and it had one collision incident with a car (3 logged collisions), which fails that gate at 2.09 per km, or 0.70 counting the incident once. Full numbers are under "Results."
 
+![TransFuser-lite turning at a junction in traffic](images/step6_drive.gif)
+
+*TransFuser-lite pulling away from a stop and turning, with 30 traffic cars, at 2× speed.*
+
+![TransFuser-lite creeping into a stopped van](images/step6_blind_spot.gif)
+
+*The same drive failing at 1.5× speed: the car creeps into a stopped van and stays against it, the close-range blind spot described under Results. This 150 s re-run also collided with a van turning across it at a junction, so it failed the gate, with 12 logged collisions over 311 m, 11 of them from staying in contact with the stopped van.*
+
+![Camera strip above the lidar bird's-eye view with waypoints](images/step6_waypoints.png)
+
+*An open-loop validation frame at a turn. Lidar ground hits are green and obstacles magenta. Expert waypoints are green, predicted waypoints red, and the route targets are blue squares.*
+
 ## What I learned
 
 - **The architecture is simpler than I expected.** When I thought of modern approaches I pictured huge, complicated models. TransFuser turned out to be easy to understand and implement: two ResNets, a small transformer between them at four scales, and a GRU. `transfuser/model.py` is under 300 lines. This is a scaled-down version, but the ideas are all there.
@@ -222,6 +234,10 @@ goal channels and gets the route only through the decoder.
 | Red-light / brake accuracy | 99.8 / 99.5% | 97.8 / 97.6% |
 | Image mIoU | 0.81 | 0.76 |
 | Pre-turn, mirrored target | -1.21 m | -1.38 m |
+
+![Fusion has lower waypoint error than camera-only on every open-loop measure](images/step6_fusion_vs_camera.png)
+
+The biggest gap is on stopped frames, where fusion's error is half of camera-only's. Chart: `python -m transfuser.plot_compare data/tf/eval_compare/open_loop.json`.
 
 Closed loop with 30 NPC cars (firm-brake controller, 4 drives of 150 s):
 
