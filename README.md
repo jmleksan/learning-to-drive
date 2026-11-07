@@ -162,6 +162,8 @@ bash bench/run.sh dev10 models/transfuser.pt
 
 Next I want to build a better-performing model and run it on benchmarks with my own additions. The goal is to learn and experiment with the many different AV methods out there and see where I can find potential myself.
 
+That work continues in [driving-benchmark](https://github.com/jmleksan/driving-benchmark), which starts from the Step 7 agent and its Dev10 score of 38.6 as the baseline to beat.
+
 ## Acknowledgments
 
 TransFuser-lite is a simplified reimplementation of [TransFuser](https://arxiv.org/abs/2205.15997) (Chitta et al.). Evaluation uses [Bench2Drive](https://github.com/Thinklab-SJTU/Bench2Drive), the [CARLA Leaderboard](https://leaderboard.carla.org/), and Scenario Runner.
